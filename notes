@@ -1,0 +1,6 @@
+Week -1 (1.08 - 8.09):
+Asked to begin the setup of the environment for a basic LDS framework that uses PCA to go from signal space to low-dimensional representation. Because of the very high-dimensionnality of the signal -> incrementalPCA from sklearn. For this setup, need to create a class that load portions of video (chunks composed of a small numbers of frames) and convert it to tensor (so that it can be feed to the PCA model).
+
+I dived into the Doretto's paper to understand how we will use the LDS formalism here. I focused on the loading of the video as it is the main challenge in terms of code for this part (at least until the training of the transition matrix for the low-dimensional representation of the signal). Problem: can't even load more than 1 minute of video without it to fill all my 20GB of RAM. Possible solutions I look into are preprocess the video into chunks converted to tensor written to disk and find a way to load a portion of video, convert it, feed it to PCA, free it, repeat until a PCA model for each video has been created so that we can convert this video.
+
+Goal until the meeting with all the team on this Thursday: find how we will load those videos and code an example of loading -> create PCA -> convert it -> write it to see how that affect the video on a small clip (10-20 sec).
