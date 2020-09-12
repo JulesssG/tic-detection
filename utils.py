@@ -9,10 +9,13 @@ def video2tensor(filename, vid_root='data/', tensor_root='data/tensors/'):
     torch.save(vframes, tensor_root+ '%s.pt' % filename[:-4])
     
 class VideoIterator:
-    def __init__(self, filename, batch_size=64):
+    def __init__(self, filename, duration=np.inf, batch_size=64):
         self.cap = cv2.VideoCapture(filename)
         self.batch_size = batch_size
+        self.total_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
         self.fps = round(self.cap.get(cv2.CAP_PROP_FPS))
+        self.duration_frames = min(self.total_frames, np.ceil(duration*self.fps/batch_size)*batch_size)
+        self.duration = self.duration_frames/self.fps
         self.width  = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         
@@ -39,4 +42,7 @@ class VideoIterator:
             if self.current_frame % self.batch_size == 0:
                 break
         
+        if self.current_frame >= self.duration*self.fps:
+            self.stop = True
+            
         return np.array(frames)
