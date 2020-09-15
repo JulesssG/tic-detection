@@ -9,8 +9,9 @@ def video2tensor(filename, vid_root='data/', tensor_root='data/tensors/'):
     torch.save(vframes, tensor_root+ '%s.pt' % filename[:-4])
     
 class VideoIterator:
-    def __init__(self, filename, duration=np.inf, batch_size=64):
+    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False):
         self.cap = cv2.VideoCapture(filename)
+        self.gray = grayscale
         self.batch_size = batch_size
         self.total_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
         self.fps = round(self.cap.get(cv2.CAP_PROP_FPS))
@@ -32,6 +33,8 @@ class VideoIterator:
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
+                if self.gray:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 frames.append(frame)
                 self.current_frame += 1
             else:
@@ -46,3 +49,31 @@ class VideoIterator:
             self.stop = True
             
         return np.array(frames)
+    
+def read_video(filename, nframes=np.inf):
+    """
+        Read the given number of frames of a video using 
+        the opencv library
+        
+        same as list(VideoIterator(filename, batch_size=np.inf))[0]
+    """
+    frames = []
+    cap = cv2.VideoCapture(filename)
+    fps = round(cap.get(cv2.CAP_PROP_FPS))
+    width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    i = 0
+    while cap.isOpened() and i < nframes:
+        ret, frame = cap.read()
+        if ret:
+            frames.append(frame)
+            i += 1
+        else:
+            break
+    
+    cap.release()
+    return np.array(frames), fps, width, height
+
+def reconstruction_error(frames1, frames2):
+    return np.sum((frames1 - frames2)**2)
