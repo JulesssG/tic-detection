@@ -9,7 +9,7 @@ def video2tensor(filename, vid_root='data/', tensor_root='data/tensors/'):
     torch.save(vframes, tensor_root+ '%s.pt' % filename[:-4])
     
 class VideoIterator:
-    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False):
+    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False, **kwargs):
         self.cap = cv2.VideoCapture(filename)
         self.gray = grayscale
         self.batch_size = batch_size
@@ -19,6 +19,11 @@ class VideoIterator:
         self.duration = self.duration_frames/self.fps
         self.width  = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        if 'scale' in kwargs:
+            self.scale = True
+            self.original_width  = self.width
+            self.original_height = self.height
+            self.width, self.height = kwargs['scale']
         
     def __iter__(self):
         self.current_frame = 0
@@ -33,8 +38,12 @@ class VideoIterator:
         while self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
+                
                 if self.gray:
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                if self.scale:
+                    frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
+                    
                 frames.append(frame)
                 self.current_frame += 1
             else:
