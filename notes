@@ -27,9 +27,24 @@ Goals of the week:
 - Adapt the SVD decomposition so that it can be computed to longer video (take N random frames with N fixed no matter the video duration to estimate the SVD)
 - Compare quality of reconstruction between approximation of the SVD and exact SVD (and PCA?)
 
-Comparison of fitting time:
+Comparison of PCA fitting time:
 Loading and fitting time fro grayscale, 960x540, 20s video reduced to 20 components:
 - All at once: 2m6s
 - Iterator: 2m18s
 
 TAG: week0
+
+- Corrected saturation
+- Scaling included in the VideoLoader contructor (optional argument)
+- PCA using svd done with the custom_pca class
+- For longer video, read_video (with the random argument) can be used to load a given amount of random frames from a video. That can be used to fit the custom PCA model and then the whole video can be converted using this object.
+- Comparison for quality of reconstruction and computational time for 20s 960x540 (color):
+
+Model:			Custom PCA	Custom PCA	Custom PCA	Custom PCA	Custom PCA	PCA_64		PCA_128
+Frames:			100%				50%					25%					10%					5%					100%			100%
+Fit time:		1m4s				37s					15s					7s					5.9s				5m32s			6m22s
+Trans time:	42s					15s					15s					15s					15s					32s				39s
+l2-error:		8.5					41.6				48.2				49.2, 73		271, 93			32.8			32.8
+
+So the loss of the first half of frame hurt, but after it's mostly the variance that rises. SVD is way faster than PCA, and gives better result when using all frames (the partial fitting is not equivalent to a full PCA model).
+Also, the transformation is faster when done in batches.

@@ -15,7 +15,7 @@ class VideoLoader:
         self.cap = cv2.VideoCapture(filename)
         self.gray = grayscale
         self.batch_size = batch_size
-        self.total_frames = self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+        self.total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         self.fps = round(self.cap.get(cv2.CAP_PROP_FPS))
         self.duration_frames = min(self.total_frames, np.ceil(duration*self.fps/batch_size)*batch_size)
         self.duration = self.duration_frames/self.fps
