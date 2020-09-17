@@ -82,7 +82,7 @@ class VideoLoader:
             
         return np.array(frames)
     
-def read_video(filename, nframes=np.inf):
+def read_video(filename, nframes=np.inf, random=False):
     """
         Read the given number of frames of a video using 
         the opencv library
@@ -95,17 +95,29 @@ def read_video(filename, nframes=np.inf):
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     
-    i = 0
-    while cap.isOpened() and i < nframes:
+    if random:
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        frame_ids = np.random.choice(np.arange(total_frames), 
+                                     size=nframes, 
+                                     replace=False)
+    frame_condition = True
+    while cap.isOpened():
         ret, frame = cap.read()
-        if ret:
-            frames.append(frame)
-            i += 1
-        else:
+        
+        if not ret:
             break
+        current_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+        
+        if random:
+            if current_frame not in frame_ids:
+                continue
+        elif current_frame > nframes:
+            break
+            
+        frames.append(frame)
     
     cap.release()
-    return np.array(frames), fps, width, height
+    return np.array(frames), {'fps': fps, 'width': width, 'height': height}
 
 def write_video(filename, frames, width, height, fps, grayscale=False):
     if grayscale:
@@ -115,12 +127,13 @@ def write_video(filename, frames, width, height, fps, grayscale=False):
     
     for frame in np.clip(np.around(frames), 0, 255).astype(np.uint8):
         writer.write(frame)
+    writer.release()
 
-def show_video(frames):
+def show_video(frames, imduration=int(1000/24.0)):
     for frame in frames:
         # Display the resulting frame
         cv2.imshow('frame',frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(imduration) & 0xFF == ord('q'):
             break
 
     # When everything done, release the capture
@@ -151,9 +164,12 @@ class custom_pca():
         
         return frames_reduced.T
         
-    def inverse_transform(self, frames):
+    def inverse_transform(self, frames, convert=True):
         frames_reconstructed = (self.pc @ frames.T).T
         frames_reconstructed = (frames_reconstructed * self.std) + self.mean
+        
+        if convert:
+            frames_reconstructed = np.clip(frames_reconstructed, 0, 255).astype(np.uint8)
         
         return frames_reconstructed
 
