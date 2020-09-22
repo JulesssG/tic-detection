@@ -48,3 +48,8 @@ l2-error:		8.5					41.6				48.2				49.2, 73		271, 93			32.8			32.8
 
 So the loss of the first half of frame hurt, but after it's mostly the variance that rises. SVD is way faster than PCA, and gives better result when using all frames (the partial fitting is not equivalent to a full PCA model).
 Also, the transformation is faster when done in batches.
+
+Meeting re-scheduled
+Registration to project's done (Assistant: None)
+
+TAG: week1
