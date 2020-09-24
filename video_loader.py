@@ -1,52 +1,90 @@
-import torch
-from torchvision.io import read_video
+import numpy as np
+import cv2
 
-class video_loader:
-    """
-        This is a class to load videos into pytorch tensor, either eagerly as a batch
-        of videos or lazily (todo)
-        Each video will be of the form Channels x Frames x Height x Width
+class VideoLoader:
+    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False, **kwargs):
+        self.filename = filename
+        self.gray = grayscale
+        self.batch_size = batch_size
+        cap = cv2.VideoCapture(filename)
+        self.total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.fps = round(cap.get(cv2.CAP_PROP_FPS))
+        self.duration_frames = min(self.total_frames, np.ceil(duration*self.fps/batch_size)*batch_size)
+        self.duration = self.duration_frames/self.fps
+        self.width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        if 'scale' in kwargs:
+            self.scale = True
+            self.original_width  = self.width
+            self.original_height = self.height
+            self.width, self.height = kwargs['scale']
+        else:
+            self.scale = False
         
-        Attributes:
-            video_paths: Iterator of string, each is a location of a video
-            duration: duration of the chunk of video to load in seconds (will start at the beginning of it)
-            create_batch: Boolean, describing if the returned value will be an iterator or a Tensor 
-            with the batch of videos
-            normalize: Boolean, whether to normalize the data or not
-    """
-    def __init__(self, video_paths, duration, create_batch=True, normalize=True):
-        self.batch = create_batch
-        self.normalize = normalize
-        self.duration = duration
-        self.videos = video_paths
-        self.nvideos = len(video_paths)
+    def get_all_frames(self):
+        frames = []
+        cap = cv2.VideoCapture(self.filename)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret:
+                frames.append(self.frame_transform(frame))
+            else:
+                cap.release()
+        
+        return np.array(frames)
     
-    def create_frames(self):
-        allvframes = [read_video(vid, end_pts=self.duration, pts_unit='sec')[0] for vid in self.videos]
-
-        if not self.batch:
-            if self.normalize:
-                temp=0 #TODO
-            
-            # TODO: return iterator instead of full load of data
-            #       to be able to deal with large amount of videos
-            self.vframes = allvframes
-            return allvframes
+    def get_random_frames(self, frames_ratio):
+        nframes = int(self.total_frames * frames_ratio)
+        frames = []
+        cap = cv2.VideoCapture(self.filename)
+        frame_ids = np.random.choice(np.arange(self.total_frames), 
+                                     size=nframes, 
+                                     replace=False)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            current_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
+            if ret:
+                if current_frame in frame_ids:
+                    frames.append(self.frame_transform(frame))
+            else:
+                cap.release()
         
-        # Make their shape consistent and create batch
-        self.nframes = min(map(lambda x: x.shape[0], allvframes))
-        for i, f in enumerate(allvframes):
-            allvframes[i] = f[:self.nframes].unsqueeze(0)
-        batchvframes = allvframes[0]
-        for nextvframes in allvframes[1:]:
-            batchvframes = torch.cat((batchvframes, nextvframes), 0)
-
-        # Reshape videos frames into Channels x Frames x Height x Width
-        batchvframes = batchvframes.float().unsqueeze(1).transpose(1, 5).squeeze()
-
-        if self.normalize:
-            vmeans, vstds = batchvframes.mean((0,2,3,4)), batchvframes.std((0,2,3,4))
-            batchvframes = ((batchvframes.transpose(1, 4) - vmeans) / vstds).transpose(1, 4)
+        return np.array(frames)
             
-        self.vframes = batchvframes
-        return batchvframes
+
+    def frame_transform(self, frame):
+        if self.gray:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if self.scale:
+            frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
+            
+        return frame
+    
+    def __iter__(self):
+        self.__cap = cv2.VideoCapture(self.filename)
+        self.current_frame = 0
+        self.stop = False
+        return self
+
+    def __next__(self):
+        if self.stop:
+            raise StopIteration()
+        
+        frames = []
+        while self.__cap.isOpened():
+            ret, frame = self.__cap.read()
+            if ret:
+                frames.append(self.frame_transform(frame))
+                self.current_frame += 1
+            else:
+                self.__cap.release()
+                self.stop = True
+                break
+            
+            if self.current_frame % self.batch_size == 0:
+                break
+        
+        if self.current_frame >= self.duration*self.fps:
+            self.stop = True
+            
+        return np.array(frames)
