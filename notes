@@ -37,7 +37,7 @@ TAG: week0
 - Corrected saturation
 - Scaling included in the VideoLoader contructor (optional argument)
 - PCA using svd done with the custom_pca class
-- For longer video, read_video (with the random argument) can be used to load a given amount of random frames from a video. That can be used to fit the custom PCA model and then the whole video can be converted using this object.
+- For longer video, read_video (with the random argument) can be used to load a given amount of random frames from a video. That can be used to fit the custom PCA model and then the whole video can be converted using this object. (Not in this function anymore, directly in the VideoLoader)
 - Comparison for quality of reconstruction and computational time for 20s 960x540 (color):
 
 Model:			Custom PCA	Custom PCA	Custom PCA	Custom PCA	Custom PCA	PCA_64		PCA_128
@@ -53,3 +53,8 @@ Meeting re-scheduled
 Registration to project's done (Assistant: None)
 
 TAG: week1
+
+Week 2:
+Goals:
+- Write a framework for (L)DS and see how to optimize it
+- Make more experiments as to see how the reconstruction error evolve with the number of components

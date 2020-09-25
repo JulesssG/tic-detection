@@ -21,7 +21,7 @@ class custom_pca():
         return frames_reduced.T
         
     def inverse_transform(self, frames, shape=None, cast=True):
-        nframes, _ = frames.shape
+        nframes = frames.shape[0]
         frames_reconstructed = (self.pc @ frames.T).T
         frames_reconstructed = (frames_reconstructed * self.std) + self.mean
         
