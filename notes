@@ -58,3 +58,21 @@ Week 2:
 Goals:
 - Write a framework for (L)DS and see how to optimize it
 - Make more experiments as to see how the reconstruction error evolve with the number of components
+
+5 minutes, grayscale, 256x256, 0.5 frames to fit:
+ncomp					10		25		50		100		150
+fit time			30.8	33.4	36		50.8	72.3
+trans time		10.9	11.1	12.5	14.4	18.3
+error					8.45	7.98	7.45	6.71	6.16
+
+10 minutes, grayscale, 256x256, 0.2 frames to fit:
+ncomp					10		25		50		100		150
+fit time			13		13		17		22		32
+trans time		21		23		26		32		35
+error					8.62	8.1		7.59	6.85	6.31
+
+10 minutes, grayscale, 256x256 (scaled at runtime), 0.2 frames to fit:
+ncomp					10		25
+fit time			44		46
+trans time		84		85
+error					8.63	8.13

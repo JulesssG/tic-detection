@@ -24,22 +24,28 @@ class VideoLoader:
     def get_all_frames(self):
         frames = []
         cap = cv2.VideoCapture(self.filename)
+        current_frame = 0
         while cap.isOpened():
             ret, frame = cap.read()
+            if current_frame >= self.duration*self.fps:
+                cap.release()
+                break
             if ret:
                 frames.append(self.frame_transform(frame))
+                current_frame += 1
             else:
                 cap.release()
         
         return np.array(frames)
     
-    def get_random_frames(self, frames_ratio):
+    def get_random_frames(self, frames_ratio, seed=42):
         nframes = int(self.total_frames * frames_ratio)
         frames = []
         cap = cv2.VideoCapture(self.filename)
+        np.random.seed(seed)
         frame_ids = np.random.choice(np.arange(self.total_frames), 
                                      size=nframes, 
-                                     replace=False)
+                                     replace=False, )
         while cap.isOpened():
             ret, frame = cap.read()
             current_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
