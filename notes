@@ -72,7 +72,13 @@ trans time		21		23		26		32		35
 error					8.62	8.1		7.59	6.85	6.31
 
 10 minutes, grayscale, 256x256 (scaled at runtime), 0.2 frames to fit:
-ncomp					10		25
-fit time			44		46
-trans time		84		85
-error					8.63	8.13
+ncomp					10		25		50		100		150
+fit time			44		44		47		51		59
+trans time		87		80		86		89		89
+error					8.63	8.13	7.62	6.85	6.33
+
+10 minutes, grayscale, 256x256, 0.5 to fit:
+ncomp					10		25		50		100		150
+fit time			28		27		30		45		1m5s
+trans time		22		19		22		27		30
+error					8.61	8.1		7.58	6.8		6.25
