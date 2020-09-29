@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
     
 def write_video(filename, frames, width, height, fps, grayscale=False):
     if grayscale:
@@ -32,3 +33,32 @@ def normalize_frames(frames, **kwargs):
     frames = frames / std
     
     return frames
+
+def plot(x, ys, **kwargs):
+    if 'fontsize' in kwargs:
+        plt.rcParams.update({'font.size': kwargs['fontsize']})
+    else:
+        plt.rcParams.update({'font.size': 12})
+        
+        
+    if 'figsize' in kwargs:
+        plt.figure(figsize=kwargs['figsize'])
+    else:
+        plt.figure(figsize=(15,10))
+        
+    if 'xlabel' in kwargs:
+        plt.xlabel(kwargs['xlabel'])
+    if 'ylabel' in kwargs:
+        plt.ylabel(kwargs['ylabel'])
+        
+    if 'labels' in kwargs:
+        for y, label in zip(ys, kwargs['labels']):
+            plt.plot(x, y, label=label)
+        plt.legend()
+    else:
+        for y in ys:
+            plt.plot(x, y)
+            
+    if 'title' in kwargs:
+        plt.title(kwargs['title'])
+    plt.show()
