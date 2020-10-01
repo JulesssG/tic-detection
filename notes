@@ -56,7 +56,7 @@ TAG: week1
 
 Week 2:
 Goals:
-- Write a framework for (L)DS and see how to optimize it
+- Write a framework for LDS and see how to optimize it
 - Make more experiments as to see how the reconstruction error evolve with the number of components
 
 5 minutes, grayscale, 256x256, 0.5 frames to fit:
@@ -82,3 +82,15 @@ ncomp					10		25		50		100		150
 fit time			28		27		30		45		1m5s
 trans time		22		19		22		27		30
 error					8.61	8.1		7.58	6.8		6.25
+
+LDS done using torch. Optimize the l2 prediction error. This permit to predict the whole video using only the pca model, the lds model and the low-rank representation of the starting frame. This gives:
+- Reconstruction error of low-dim frames: 2.26
+- Reconstruction error of generated frames: 9.48
+
+TAG: week2
+
+Week 3:
+Goals:
+- Write an autoencoder to improve the reconstruction error, pca will be the baseline
+
+Written an autoencoder that can map 256x256 tensors to the following dimensions: 16, 25, 50, 100, 150, 200
