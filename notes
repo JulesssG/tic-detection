@@ -94,3 +94,76 @@ Goals:
 - Write an autoencoder to improve the reconstruction error, pca will be the baseline
 
 Written an autoencoder that can map 256x256 tensors to the following dimensions: 16, 25, 50, 100, 150, 200
+
+Re-written the autoencoder to reduce the number of parameters by a factor of 4, now either the model has not enough capacity, either the stopping of the optimization is too early. The latter is much more probable as I only let it run for 3 epoch (the fitting take ~2min per epoch). The structure of the net is as follows:
+BasicAutoEncoder(
+  (transform_convs): Sequential(
+    (0): Conv2d(1, 8, kernel_size=(4, 4), stride=(1, 1))									-> 8 x 253 x 253
+    (1): ReLU()
+    (2): Conv2d(8, 16, kernel_size=(6, 6), stride=(3, 3), padding=(1, 1))	-> 16 x 84 x 84
+    (3): ReLU()
+    (4): Conv2d(16, 16, kernel_size=(6, 6), stride=(2, 2))								-> 16 x 40 x 40
+    (5): ReLU()
+    (6): Conv2d(16, 16, kernel_size=(6, 6), stride=(2, 2))								-> 16 x 18 x 18
+    (7): ReLU()
+    (8): Conv2d(16, 8, kernel_size=(6, 6), stride=(1, 1))									-> 8 x 13 x 13
+    (9): ReLU()
+  )
+  (to_lower_dim): Sequential(
+    (0): Conv2d(8, 1, kernel_size=(7, 7), stride=(2, 2))									-> 1 x 4 x 4
+    (1): ReLU()
+  )
+  (from_lower_dim): Sequential(
+    (0): ConvTranspose2d(1, 8, kernel_size=(7, 7), stride=(2, 2))
+    (1): ReLU()
+  )
+  (inv_transform_convs): Sequential(
+    (0): ConvTranspose2d(8, 16, kernel_size=(6, 6), stride=(1, 1))
+    (1): ReLU()
+    (2): ConvTranspose2d(16, 16, kernel_size=(6, 6), stride=(2, 2))
+    (3): ReLU()
+    (4): ConvTranspose2d(16, 16, kernel_size=(6, 6), stride=(2, 2))
+    (5): ReLU()
+    (6): ConvTranspose2d(16, 8, kernel_size=(6, 6), stride=(3, 3), padding=(1, 1))
+    (7): ReLU()
+    (8): ConvTranspose2d(8, 1, kernel_size=(4, 4), stride=(1, 1))
+  )
+)
+
+After five epochs (5min of grayscale 256x256, skipping 4 frames with five epochs -> 5min30 to fit and 2min to transform) the error is quite high: 40.39. One problem is that the frame are not at all extracted in random order but in consecutive which implies that the SGD's convergence rate should be much worse.
+
+Added the randit VideoLoader's argument to make the iterator load frames in random order.
+
+Current state of VideoLoader:
+###		arguments		###
+filename (string): the filename of the video
+duration (number): the duration (in seconds) that will be loaded
+batch_size (int): the number of frames returned for every iteration of the iterator
+grayscale (boolean): whether to convert the video to grayscale or not
+scale ((int, int)): whether to scale the video resolution or not, it will transform whatever resolution of the video file into scale[0] x scale[1]
+skip_frame (int):	Used in the iterator only, how many consecutive frames to skip after every loaded frame
+randit (boolean): Used only in the iterator
+
+###		functions		###
+get_all_frames:
+	argument: -
+	dependencies: filename, fps, duration, scale, grayscale
+
+	return all frames in consecutive order up to the duration
+
+get_random_frames:
+	argument:
+		frames_ratio (float): coefficient between 0 and 1 representing the proportion of frames that will be loaded
+		seed: random seed for reproducibility
+		dependencies: filename, fps, scale, grayscale (does not depend on duration!)
+
+		return total_frames*frames_ratio frames in random order
+
+frame_transform:
+
+	transform the frames according to the scale and the grayscale arguments
+
+###		iterator		###
+	Iterator over the frames of the video present in filename. It will at each iteration return batch_size frames, transformed using frame_transformed. The number of frames return in total (after the StopIteration()) will be duration*fps/(skip_frame+1). This skip_frame argument is mainly here when loading in consecutive order, to load only 1 frame every skip_frame+1 frames.
+
+Using random order when loading the error goes down to 36.04.

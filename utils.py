@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import torch
+import datetime
 from matplotlib import pyplot as plt
     
 def write_video(filename, frames, width, height, fps, grayscale=False):
@@ -25,6 +27,9 @@ def reconstruction_error(frames1, frames2):
         print("Shapes don't match")
         return -1
     return np.sqrt(np.mean((frames1 - frames2)**2))
+
+def crit(output, gt):
+    return torch.sqrt(torch.mean((output - gt)**2))
 
 def normalize_frames(frames, **kwargs):
     mean = kwargs['mean'] if 'mean' in kwargs else np.mean(frames)

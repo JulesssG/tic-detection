@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False, **kwargs):
+    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False, scale=None, skip_frame=0, randit=False):
         self.filename = filename
         self.gray = grayscale
         self.batch_size = batch_size
@@ -13,13 +13,15 @@ class VideoLoader:
         self.duration = self.duration_frames/self.fps
         self.width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        if 'scale' in kwargs:
+        if scale:
             self.scale = True
             self.original_width  = self.width
             self.original_height = self.height
-            self.width, self.height = kwargs['scale']
+            self.width, self.height = scale
         else:
             self.scale = False
+        self.skip_frame = skip_frame
+        self.randit = randit
         
     def get_all_frames(self):
         frames = []
@@ -68,29 +70,37 @@ class VideoLoader:
     
     def __iter__(self):
         self.__cap = cv2.VideoCapture(self.filename)
-        self.current_frame = 0
-        self.stop = False
+        self.__frame_count = 0
+        self.__frame_order = np.arange(1, self.total_frames+1)
+        if self.randit:
+            np.random.shuffle(self.__frame_order)
+        self.__frame_order = iter(self.__frame_order)
+        self.__stop = False
         return self
 
     def __next__(self):
-        if self.stop:
+        if self.__stop:
             raise StopIteration()
         
         frames = []
         while self.__cap.isOpened():
+            self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next(self.__frame_order)-1)
             ret, frame = self.__cap.read()
+            for _ in range(self.skip_frame):
+                next(self.__frame_order)
+                
             if ret:
                 frames.append(self.frame_transform(frame))
-                self.current_frame += 1
+                self.__frame_count += 1
             else:
                 self.__cap.release()
-                self.stop = True
+                self.__stop = True
                 break
             
-            if self.current_frame % self.batch_size == 0:
+            if self.__frame_count % self.batch_size == 0:
                 break
         
-        if self.current_frame >= self.duration*self.fps:
-            self.stop = True
+        if self.__frame_count*(self.skip_frame+1) >= self.duration*self.fps:
+            self.__stop = True
             
         return np.array(frames)
