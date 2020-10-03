@@ -63,7 +63,11 @@ def plot(x, ys, **kwargs):
     else:
         for y in ys:
             plt.plot(x, y)
-            
+
     if 'title' in kwargs:
         plt.title(kwargs['title'])
+
     plt.show()
+
+def format_sec(sec):
+    return str(datetime.timedelta(seconds=sec))
