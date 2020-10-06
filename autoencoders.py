@@ -56,26 +56,52 @@ class BasicAutoEncoder(nn.Module):
                                                  nn.ConvTranspose2d(32, 32, kernel_size=5, stride=2), nn.ReLU(),
                                                  nn.ConvTranspose2d(32, inchannels, kernel_size=4), nn.ReLU())
         """
-        
+
         self.inv_transform_convs = nn.Sequential(nn.ConvTranspose2d(8,  16, kernel_size=6), nn.ReLU(),
                                                    nn.ConvTranspose2d(16, 16, kernel_size=6, stride=2), nn.ReLU(),
                                                    nn.ConvTranspose2d(16, 16, kernel_size=6, stride=2), nn.ReLU(),
                                                    nn.ConvTranspose2d(16, 8, kernel_size=6, stride=3, padding=1), nn.ReLU(),
                                                    nn.ConvTranspose2d(8, inchannels,  kernel_size=4))
-        
+
     def transform(self, x):
         x = self.transform_convs(x)
         x = self.to_lower_dim(x)
-        
+
         return x.view(x.shape[0], -1), x.shape
-    
+
     def inverse_transform(self, x, shape):
         x = x.view(shape)
         x = self.from_lower_dim(x)
         x = self.inv_transform_convs(x)
-        
+
         return x
-    
+
     @staticmethod
     def ncomps():
         return [16, 25, 50, 100, 150, 200]
+
+class ShallowAutoEncoder(nn.Module):
+    def __init__(self, inchannels):
+        super().__init__()
+        self.inv_transform_convs = nn.Sequential(nn.Conv2d(4, 16, kernel_size=4), nn.ReLU(), # 63
+                                             nn.Conv2d(16, 16, kernel_size=5, stride=2), nn.ReLU(), # 21
+                                             nn.Conv2d(16, 16,  kernel_size=5, stride=3), nn.ReLU(), # 9
+                                             nn.Conv2d(16, inchannels, kernel_size=7, stride=4), nn.ReLU())
+
+        self.transform_convs = nn.Sequential(nn.ConvTranspose2d(inchannels, 16, kernel_size=7, stride=4), nn.ReLU(), # 63
+                                             nn.ConvTranspose2d(16, 16, kernel_size=5, stride=3), nn.ReLU(), # 21
+                                             nn.ConvTranspose2d(16, 16,  kernel_size=5, stride=2), nn.ReLU(), # 9
+                                             nn.ConvTranspose2d(16, 4, kernel_size=4), nn.ReLU())
+
+
+    def transform(self, x):
+        x = self.transform_convs(x)
+        print(x.shape)
+        return x.view(x.shape[0], -1), x.shape
+
+    def inverse_transform(self, x, shape):
+        x = x.view(shape)
+        x = self.inv_transform_convs(x)
+        print(x.shape)
+
+        return x
