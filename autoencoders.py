@@ -32,7 +32,7 @@ class BasicAutoEncoder(nn.Module):
             self.to_lower_dim = nn.Sequential(nn.Conv2d(low_channel, 6, kernel_size=5, stride=2), nn.ReLU())
             self.from_lower_dim = nn.Sequential(nn.ConvTranspose2d(6, low_channel, kernel_size=5, stride=2), nn.ReLU())
         elif ncomp == 100:
-            self.to_lower_dim = nn.Sequential(nn.Conv2d(low_channel, kernel_size=5, stride=2), nn.ReLU())
+            self.to_lower_dim = nn.Sequential(nn.Conv2d(low_channel, 4, kernel_size=5, stride=2), nn.ReLU())
             self.from_lower_dim = nn.Sequential(nn.ConvTranspose2d(4, low_channel, kernel_size=5, stride=2), nn.ReLU())
         elif ncomp == 50:
             self.to_lower_dim = nn.Sequential(nn.Conv2d(low_channel, 2, kernel_size=5, stride=2), nn.ReLU())
