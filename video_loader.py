@@ -29,7 +29,7 @@ class VideoLoader:
         current_frame = 0
         while cap.isOpened():
             ret, frame = cap.read()
-            if current_frame >= self.duration*self.fps:
+            if current_frame >= self.duration_frames:
                 cap.release()
                 break
             if ret:
@@ -41,11 +41,11 @@ class VideoLoader:
         return np.array(frames)
     
     def get_random_frames(self, frames_ratio, seed=42):
-        nframes = int(self.total_frames * frames_ratio)
+        nframes = int(self.duration_frames * frames_ratio)
         frames = []
         cap = cv2.VideoCapture(self.filename)
         np.random.seed(seed)
-        frame_ids = np.random.choice(np.arange(self.total_frames), 
+        frame_ids = np.random.choice(np.arange(self.duration_frames), 
                                      size=nframes, 
                                      replace=False, )
         while cap.isOpened():
@@ -71,7 +71,7 @@ class VideoLoader:
     def __iter__(self):
         self.__cap = cv2.VideoCapture(self.filename)
         self.__frame_count = 0
-        self.__frame_order = np.arange(1, self.total_frames+1)
+        self.__frame_order = np.arange(1, self.duration_frames+1)
         if self.randit:
             np.random.shuffle(self.__frame_order)
         self.__frame_order = iter(self.__frame_order)
@@ -100,7 +100,7 @@ class VideoLoader:
             if self.__frame_count % self.batch_size == 0:
                 break
         
-        if self.__frame_count*(self.skip_frame+1) >= self.duration*self.fps:
+        if self.__frame_count*(self.skip_frame+1) >= self.duration_frames:
             self.__stop = True
             
         return np.array(frames)

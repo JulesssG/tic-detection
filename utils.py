@@ -69,5 +69,5 @@ def plot(x, ys, **kwargs):
 
     plt.show()
 
-def format_sec(sec):
+def sec2string(sec):
     return str(datetime.timedelta(seconds=sec))
