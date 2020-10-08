@@ -70,4 +70,9 @@ def plot(x, ys, **kwargs):
     plt.show()
 
 def sec2string(sec):
-    return str(datetime.timedelta(seconds=sec))
+    if sec <= 60:
+        return round(sec, 2)
+    secr = round(sec)
+    
+    print(secr, int(secr))
+    return str(datetime.timedelta(seconds=secr)).strip("00:")
