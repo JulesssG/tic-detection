@@ -1,10 +1,11 @@
 import numpy as np
+import torch
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, duration=np.inf, batch_size=64, grayscale=False, scale=None, skip_frame=0, randit=False):
+    def __init__(self, filename, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True):
         self.filename = filename
-        self.gray = grayscale
+        self.gray = gray
         self.batch_size = batch_size
         cap = cv2.VideoCapture(filename)
         self.total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -22,6 +23,21 @@ class VideoLoader:
             self.scale = False
         self.skip_frame = skip_frame
         self.randit = randit
+        self.torch = torch
+        
+    def reduce_latent(self, model):
+        self.randit = self.skip_frame = 0
+        
+        reconstructed_frames = []
+        for frames in self:
+            # WILL BE TRANSFORM -> INV_TRANSFORM
+            reconstructed_frames.append(model(frames))
+        
+        if self.torch:
+            reconstructed_frames = torch.cat(reconstructed_frames, 0)
+        else:
+            frames = np.vstack(frames)
+        return reconstructed_frames
         
     def get_all_frames(self):
         frames = []
@@ -38,7 +54,7 @@ class VideoLoader:
             else:
                 cap.release()
         
-        return np.array(frames)
+        return self.__from_frame_list(frames)
     
     def get_random_frames(self, frames_ratio, seed=42):
         nframes = int(self.duration_frames * frames_ratio)
@@ -57,7 +73,7 @@ class VideoLoader:
             else:
                 cap.release()
         
-        return np.array(frames)
+        return self.__from_frame_list(frames)
             
 
     def frame_transform(self, frame):
@@ -65,8 +81,23 @@ class VideoLoader:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if self.scale:
             frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
+        if self.torch:
+            frame = torch.from_numpy(frame).float()
             
         return frame
+    
+    def __from_frame_list(self, frames):
+        if self.torch:
+            frames = torch.stack(frames)
+            if self.gray:
+                frames = frames.unsqueeze(3)
+            frames = frames.permute((0, 3, 1, 2))
+        else:
+            frames = np.array(frames)
+            if not self.gray:
+                frames = np.transpose(frames, axes=(0,3, 1, 2))
+        
+        return frames
     
     def __iter__(self):
         self.__cap = cv2.VideoCapture(self.filename)
@@ -103,4 +134,4 @@ class VideoLoader:
         if self.__frame_count*(self.skip_frame+1) >= self.duration_frames:
             self.__stop = True
             
-        return np.array(frames)
+        return self.__from_frame_list(frames)

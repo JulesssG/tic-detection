@@ -74,5 +74,4 @@ def sec2string(sec):
         return round(sec, 2)
     secr = round(sec)
     
-    print(secr, int(secr))
     return str(datetime.timedelta(seconds=secr)).strip("00:")
