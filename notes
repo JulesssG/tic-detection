@@ -167,3 +167,15 @@ frame_transform:
 	Iterator over the frames of the video present in filename. It will at each iteration return batch_size frames, transformed using frame_transformed. The number of frames return in total (after the StopIteration()) will be duration*fps/(skip_frame+1). This skip_frame argument is mainly here when loading in consecutive order, to load only 1 frame every skip_frame+1 frames.
 
 Using random order when loading the error goes down to 36.04.
+
+TAG: no tag because no real results
+
+Week 4:
+Problems with last week's work: should have started with a simple model and improve it step by step. The complicated autoencoder written is not really useable.
+Goals:
+- Implement PCA using an autoencoder and see if we can get a network that performs around the same as PCA
+- Then, improve it using non-linearities, more layers, convolutions etc.
+
+Implemented PCA using autoencoder structure. Far slower to create the model and the performance are worse (normal as PCA is mathematically perfect). After tuning the learning rate and the weight decay, fitting for 30 epochs gives an error of 17.8 (vs 7.45 for PCA). This took 4m43s to fit and 24s to transform (vs 36s and 12.5s for PCA). So for now this model is just worse in all aspect (except maybe that it can be fitted iteratively).
+
+Next model is a one hidden layer NN for the encoder and decoder with 200 hidden dimension. This gives a slightly better result: 14.62 (same as before, hyper-parameters tuned ans 30 epochs) but take 2x more times per epoch.
