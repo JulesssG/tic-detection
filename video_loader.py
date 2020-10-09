@@ -115,7 +115,12 @@ class VideoLoader:
         
         frames = []
         while self.__cap.isOpened():
-            self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next(self.__frame_order)-1)
+            next_frame = next(self.__frame_order, None)
+            if next_frame is not None:
+                self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame - 1)
+            else:
+                self.__stop = True
+                break
             ret, frame = self.__cap.read()
             for _ in range(self.skip_frame):
                 next(self.__frame_order)
