@@ -179,3 +179,31 @@ Goals:
 Implemented PCA using autoencoder structure. Far slower to create the model and the performance are worse (normal as PCA is mathematically perfect). After tuning the learning rate and the weight decay, fitting for 30 epochs gives an error of 17.8 (vs 7.45 for PCA). This took 4m43s to fit and 24s to transform (vs 36s and 12.5s for PCA). So for now this model is just worse in all aspect (except maybe that it can be fitted iteratively).
 
 Next model is a one hidden layer NN for the encoder and decoder with 200 hidden dimension. This gives a slightly better result: 14.62 (same as before, hyper-parameters tuned ans 30 epochs) but take 2x more times per epoch.
+
+Implemented convolutional AE with few layer nd big filters. Good potential but slow to converge.
+Model:
+SpatialConvAE(
+  (encoder_convs): Sequential(
+    (0): Conv2d(1, 128, kernel_size=(26, 26), stride=(5, 5))
+    (1): ReLU()
+    (2): Conv2d(128, 128, kernel_size=(11, 11), stride=(3, 3))
+    (3): ReLU()
+    (4): Conv2d(128, 64, kernel_size=(6, 6), stride=(1, 1))
+    (5): ReLU()
+  )
+  (encoder_lin): Linear(in_features=4096, out_features=50, bias=True)
+  (decoder_lin): Linear(in_features=50, out_features=4096, bias=True)
+  (decoder_convs): Sequential(
+    (0): ConvTranspose2d(64, 128, kernel_size=(6, 6), stride=(1, 1))
+    (1): ReLU()
+    (2): ConvTranspose2d(128, 128, kernel_size=(11, 11), stride=(3, 3))
+    (3): ReLU()
+    (4): ConvTranspose2d(128, 1, kernel_size=(26, 26), stride=(5, 5))
+  )
+)
+Using 30 epochs, fine tuned the hyperparameters:
+	time to fit: 1:15:04
+	time to transform: 3:46
+	error: around 14 (exact loss not known, kernel died)
+
+

@@ -31,8 +31,8 @@ class VideoLoader:
         reconstructed_frames = []
         for frames in self:
             # WILL BE TRANSFORM -> INV_TRANSFORM
-            reconstructed_frames.append(model(frames))
-        
+            reconstructed_frames.append(model(frames).detach())
+
         if self.torch:
             reconstructed_frames = torch.cat(reconstructed_frames, 0)
         else:
