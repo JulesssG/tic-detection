@@ -206,4 +206,4 @@ Using 30 epochs, fine tuned the hyperparameters:
 	time to transform: 3:46
 	error: around 14 (exact loss not known, kernel died)
 
-
+Switch to video that have a meaning: one recorded by the Jo's. The aim is to make a fresh comparison of all models and try to come with an autoencoder that compete with PCA.
