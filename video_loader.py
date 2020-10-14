@@ -25,18 +25,24 @@ class VideoLoader:
         self.randit = randit
         self.torch = torch
         
-    def reduce_latent(self, model):
+    def reduce_latent(self, model, trans=True):
         self.randit = self.skip_frame = 0
         
         reconstructed_frames = []
         for frames in self:
-            # WILL BE TRANSFORM -> INV_TRANSFORM
-            reconstructed_frames.append(model(frames).detach())
+            # WILL ALWAYS BE TRANSFORM -> INV_TRANSFORM
+            if trans:
+                if self.torch:
+                    reconstructed_frames.append(model.inverse_transform(*model.transform(frames)).detach())
+                else:
+                    reconstructed_frames.append(model.inverse_transform(*model.transform(frames)))
+            else:
+                reconstructed_frames.append(model(frames).detach())
 
         if self.torch:
             reconstructed_frames = torch.cat(reconstructed_frames, 0)
         else:
-            frames = np.vstack(frames)
+            reconstructed_frames = np.vstack(reconstructed_frames)
         return reconstructed_frames
         
     def get_all_frames(self):
@@ -77,10 +83,10 @@ class VideoLoader:
             
 
     def frame_transform(self, frame):
-        if self.gray:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if self.scale:
             frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
+        if self.gray:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if self.torch:
             frame = torch.from_numpy(frame).float()
             
@@ -115,15 +121,15 @@ class VideoLoader:
         
         frames = []
         while self.__cap.isOpened():
-            next_frame = next(self.__frame_order, None)
-            if next_frame is not None:
+            try:
+                next_frame = next(self.__frame_order)
                 self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame - 1)
-            else:
+                for _ in range(self.skip_frame):
+                    next(self.__frame_order)
+            except StopIteration:
                 self.__stop = True
                 break
             ret, frame = self.__cap.read()
-            for _ in range(self.skip_frame):
-                next(self.__frame_order)
                 
             if ret:
                 frames.append(self.frame_transform(frame))
@@ -135,8 +141,36 @@ class VideoLoader:
             
             if self.__frame_count % self.batch_size == 0:
                 break
-        
+
         if self.__frame_count*(self.skip_frame+1) >= self.duration_frames:
             self.__stop = True
             
         return self.__from_frame_list(frames)
+    
+    def write(self, filename):
+        last_torch = self.torch
+        self.torch = False
+        
+        if self.gray:
+            writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), self.fps, (self.width, self.height), 0)
+        else:
+            writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), self.fps, (self.width, self.height))
+    
+        cap = cv2.VideoCapture(self.filename)
+        current_frame = 0
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if current_frame >= self.duration_frames:
+                cap.release()
+                break
+            if ret:
+                #print(frame.shape)
+                frame = self.frame_transform(frame)
+                #print(frame.shape)
+                writer.write(frame)
+                current_frame += 1
+            else:
+                cap.release()
+        
+        writer.release()
+        self.torch = last_torch
