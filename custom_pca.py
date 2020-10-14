@@ -13,12 +13,13 @@ class custom_pca():
         self.pc, _, _ = randomized_svd(frames.T, self.ncomp)
         
     def transform(self, frames):
-        if len(frames.shape) > 2:
+        shape = frames.shape[1:]
+        if len(shape) > 1:
             frames = frames.reshape(frames.shape[0], -1)
         frames = (frames - self.mean) / self.std
         frames_reduced = self.pc.T @ frames.T
         
-        return frames_reduced.T
+        return frames_reduced.T, shape
         
     def inverse_transform(self, frames, shape=None, cast=True):
         nframes = frames.shape[0]
