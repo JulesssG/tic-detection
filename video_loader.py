@@ -87,17 +87,16 @@ class VideoLoader:
             frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
         if self.gray:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        if self.torch:
-            frame = torch.from_numpy(frame).float()
             
         return frame
     
     def __from_frame_list(self, frames):
         if self.torch:
-            frames = torch.stack(frames)
+            frames = torch.FloatTensor(frames)
             if self.gray:
-                frames = frames.unsqueeze(3)
-            frames = frames.permute((0, 3, 1, 2))
+                frames = frames.unsqueeze(1)
+            else:
+                frames = frames.permute((0, 3, 1, 2))
         else:
             frames = np.array(frames)
             if not self.gray:
