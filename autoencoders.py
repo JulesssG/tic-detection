@@ -16,7 +16,7 @@ class PCAAutoEncoder(nn.Module):
         
         return x.view(x.shape[0], *self.shape)
 
-class OneAutoEncoder(nn.Module):
+class OneHAutoEncoder(nn.Module):
     def __init__(self, shape, ncomp, nl=nn.ReLU):
         super().__init__()
         infeatures = np.prod(shape)
@@ -59,7 +59,7 @@ class SpatialConvAE(nn.Module):
         x = x.view(x.shape[0], -1)
         x = self.encoder_lin(x)
         x = self.decoder_lin(x)
-        x = x.view(x.shape[0], chans[2], 8, 8)
+        x = x.view(x.shape[0], self.chans[2], 8, 8)
         x = self.decoder_convs(x)
         
         return x
