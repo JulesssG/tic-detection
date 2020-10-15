@@ -24,7 +24,6 @@ def show_video(frames, imduration=int(1000/24.0)):
 
 def reconstruction_error(frames1, frames2):
     if frames1.shape != frames2.shape:
-        print("Shapes don't match")
         return -1
     return np.sqrt(np.mean((frames1 - frames2)**2))
 
@@ -55,6 +54,15 @@ def plot(x, ys, **kwargs):
         plt.xlabel(kwargs['xlabel'])
     if 'ylabel' in kwargs:
         plt.ylabel(kwargs['ylabel'])
+        
+    if 'yrange' in kwargs:
+        low, high = kwargs['yrange']
+        plt.ylim(low, high)
+    
+    if 'bound_to_plot' in kwargs:
+        epoch, max_error = kwargs['bound_to_plot']
+        ys = list(filter(lambda x: max(x[epoch:]) < max_error, ys))
+        
         
     if 'labels' in kwargs:
         for y, label in zip(ys, kwargs['labels']):
