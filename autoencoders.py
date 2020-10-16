@@ -46,8 +46,8 @@ class SpatialConvAE(nn.Module):
                                            nn.Conv2d(chans[0], chans[1], kernel_size=11, stride=3), nl(), # 13
                                            nn.Conv2d(chans[1], chans[2], kernel_size=6), nl()) # 8
         
-        self.encoder_lin = nn.Linear(64*8*8, ncomp)
-        self.decoder_lin = nn.Linear(ncomp, 64*8*8)
+        self.encoder_lin = nn.Linear(chans[2]*8*8, ncomp)
+        self.decoder_lin = nn.Linear(ncomp, chans[2]*8*8)
         
         self.decoder_convs = nn.Sequential(nn.ConvTranspose2d(chans[2], chans[1], kernel_size=6), nl(),
                                            nn.ConvTranspose2d(chans[1], chans[0], kernel_size=11, stride=3), nl(),

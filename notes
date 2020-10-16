@@ -180,7 +180,7 @@ Implemented PCA using autoencoder structure. Far slower to create the model and 
 
 Next model is a one hidden layer NN for the encoder and decoder with 200 hidden dimension. This gives a slightly better result: 14.62 (same as before, hyper-parameters tuned ans 30 epochs) but take 2x more times per epoch.
 
-Implemented convolutional AE with few layer nd big filters. Good potential but slow to converge.
+Implemented convolutional AE with few layer and big filters. Good potential but slow to converge.
 Model:
 SpatialConvAE(
   (encoder_convs): Sequential(
@@ -207,3 +207,15 @@ Using 30 epochs, fine tuned the hyperparameters:
 	error: around 14 (exact loss not known, kernel died)
 
 Switch to video that have a meaning: one recorded by the Jo's. The aim is to make a fresh comparison of all models and try to come with an autoencoder that compete with PCA.
+
+Had to debug the video loader while switching the recording. The video loader is now faster (as fast as before including torch data types into the video loader).
+
+The PCA autoencoder is hard to train, learning rate and weight decay have practically no effect, from 1e-6 to 1e-3 the learning rate is pretty much the same and it saturate at ~150. However, the variation of the error between one optimisation and the other (same parameters and data, just different randomness for the weight initialization etc.) is very high. It seems that the model get stucks in the majority of time into local minimas.
+
+For the autoencoder with one hidden layer, it works way better. It achieves 17 error after 3m31s (40 epochs).
+
+The spatial convolutional AE still is very slow, but seems to converge towards a great approximation.
+
+TAG: week4
+
+todo
