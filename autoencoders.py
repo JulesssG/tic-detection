@@ -63,3 +63,43 @@ class SpatialConvAE(nn.Module):
         x = self.decoder_convs(x)
         
         return x
+    
+class TemporalConvAE(nn.Module):
+    def __init__(self, inchannels, nlayers, layerchans):
+        super().__init__()
+        self.inchannels = inchannels
+        self.layerchans = layerchans
+        c1 = c2 = c3 = c4 = c5 = layerchans
+        
+        conv_params = [(inchannels, c1, 8, 2), # (1, c1, 29, 125, 125)
+                       (c1, c2, 7, (1, 2, 2)), # (1, c2, 23, 60, 60)
+                       (c2, c3, 8, (1, 2, 2)), # (1, c3, 16, 27, 27)
+                       (c3, c4, 7, (1, 2, 2)), # (1, c4, 10, 11, 11)
+                       (c4, c5, 5, (1, 2, 2))] # (1, c5, 6, 4, 4)
+        
+        encoder_modules = []
+        for params in conv_params[:nlayers]:
+            encoder_modules.append(nn.Conv3d(params[0], params[1], kernel_size=params[2], stride=params[3]))
+            encoder_modules.append(nn.ReLU())
+        self.encoder_convs = nn.Sequential(*encoder_modules)
+        
+        decoder_modules = []
+        for params in conv_params[:nlayers][::-1]:
+            decoder_modules.append(nn.ConvTranspose3d(params[1], params[0], kernel_size=params[2], stride=params[3]))
+            decoder_modules.append(nn.ReLU())
+        self.decoder_convs = nn.Sequential(*decoder_modules)
+        
+        """
+        self.encoder_convs = nn.Sequential(nn.Conv3d(inchannels, c1, kernel_size=8, stride=2), nn.ReLU(), # 125
+                                          nn.Conv3d(c1, c2, kernel_size=7, stride=2), nn.ReLU(), nn.ReLU(), # 60
+                                          nn.Conv3d(c2, c3, kernel_size=8, stride=2), nn.ReLU(), # 27
+                                          nn.Conv3d(c3, c4, kernel_size=7, stride=2), nn.ReLU(),  # 11
+                                          nn.Conv3d(c4, c5, kernel_size=5, stride=2), nn.ReLU())  # 4
+                                          
+        """
+        
+    def forward(self, x):
+        x = self.encoder_convs(x)
+        x = self.decoder_convs(x)
+        
+        return x
