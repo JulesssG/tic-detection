@@ -38,7 +38,11 @@ def normalize_frames(frames, **kwargs):
     
     return frames
 
+styles = ['C'+str(c)+'-'+s for s in ['', '.', 'o', '^'] for c in [0, 1, 2, 3, 6, 8, 9] ]
 def plot(x, ys, **kwargs):
+    if len(ys) > len(styles):
+        print('Duplicate styles')
+    
     if 'fontsize' in kwargs:
         plt.rcParams.update({'font.size': kwargs['fontsize']})
     else:
@@ -65,8 +69,8 @@ def plot(x, ys, **kwargs):
         
         
     if 'labels' in kwargs:
-        for y, label in zip(ys, kwargs['labels']):
-            plt.plot(x, y, label=label)
+        for i, (y, label) in enumerate(zip(ys, kwargs['labels'])):
+            plt.plot(x, y, styles[i], label=label)
         plt.legend()
     else:
         for y in ys:
@@ -75,7 +79,6 @@ def plot(x, ys, **kwargs):
     if 'title' in kwargs:
         plt.title(kwargs['title'])
 
-    plt.show()
 
 def sec2string(sec):
     if sec <= 60:
