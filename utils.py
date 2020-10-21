@@ -38,8 +38,13 @@ def normalize_frames(frames, **kwargs):
     
     return frames
 
-styles = ['C'+str(c)+'-'+s for s in ['', '.', 'o', '^'] for c in [0, 1, 2, 3, 6, 8, 9] ]
 def plot(x, ys, **kwargs):
+    if 'styles' in kwargs:
+        styles = kwargs['styles']
+    else:
+        styles = ['C'+str(c)+'-'+s for s in ['', '.', 'o', '^'] 
+                  for c in [0, 1, 2, 3, 6, 8, 9] ]
+    
     if len(ys) > len(styles):
         print('Duplicate styles')
     
