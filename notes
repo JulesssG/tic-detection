@@ -217,5 +217,14 @@ For the autoencoder with one hidden layer, it works way better. It achieves 17 e
 The spatial convolutional AE still is very slow, but seems to converge towards a great approximation.
 
 TAG: week4
+Week 5:
+Temporal convolution should be the way to go so the goal is to one step at a time create such a model.
 
-todo
+Switched to colab to run the experiment on temporal convolutions. Tried 1 to 5 layers for temporal convolutions with stride 2, kernel size 8x8x8, channels 4,8,12,32 and 64.
+
+Conclusions:
+- Testing time grows linearly for 2 channels and more (30s for 10s of video with 32 channels)
+- From 2 layers, curves looks roughly the same. Increasing the number of layers makes the training harder and augmenting the number of channels improve the performance.
+- 2 channels and 32 channels seems like a good compromise.
+
+TAG: week5
