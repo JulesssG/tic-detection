@@ -38,7 +38,7 @@ def normalize_frames(frames, **kwargs):
     
     return frames
 
-def plot(x, ys, **kwargs):
+def plot(xs, ys, **kwargs):
     if 'styles' in kwargs:
         styles = kwargs['styles']
     else:
@@ -74,12 +74,19 @@ def plot(x, ys, **kwargs):
         
         
     if 'labels' in kwargs:
-        for i, (y, label) in enumerate(zip(ys, kwargs['labels'])):
-            plt.plot(x, y, styles[i], label=label)
+        for i in range(len(ys)):
+            if len(np.shape(xs)) > 1:
+                plt.plot(xs[i], ys[i], styles[i], label=kwargs['labels'][i])
+            else:
+                plt.plot(xs, ys[i], styles[i], label=kwargs['labels'][i])
         plt.legend()
     else:
-        for y in ys:
-            plt.plot(x, y)
+        if len(np.shape(xs)) > 1:
+            for x, y in zip(xs, ys):
+                plt.plot(x, y)
+        else:
+            for y in ys:
+                plt.plot(xs, y)
 
     if 'title' in kwargs:
         plt.title(kwargs['title'])
