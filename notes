@@ -228,3 +228,13 @@ Conclusions:
 - 2 channels and 32 channels seems like a good compromise.
 
 TAG: week5
+Week 6:
+Remarks on temporal convolutions so far:
+- May be better to combine spatial convs + LSTM (see 2016-ICLR-video-autoencoder's structure)
+- More than 2 seconds as batch size to predict the next frame does not make much sense, 32 as maximum maybe
+- Batches are disjoint. Frame N to N+B are there to predict the frame N+B+1 alone, we use each frame exactly one time construct the low dim. rep. for 1/B of all frames only.
+- Because of the last bullet point, at test time to try to predict each frame we have to run the temporal convolution for the chosen time interval for each frame. Meaning, for the current setup (64 frames as input to the model) to predict each frame the model has to process 64 frames, which is really time consuming.
+- Another disadvantage of 64 frames as input for the model is that the bottleneck of the autoencoder (the low dimensional representation) must contain information relative to all those frames, even tho they are not all useful.
+- The argument to iterate in a random order was True for all experiments, this does not make much sense for our application, as the temporal convolutions are there to capture temporal dependencies.
+
+Added the possibility to configure the stride when iterating on the video. This facilitates the iteration for temporal convolutions.
