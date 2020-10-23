@@ -3,7 +3,7 @@ import torch
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True):
+    def __init__(self, filename, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True, stride=None):
         self.filename = filename
         self.gray = gray
         self.batch_size = batch_size
@@ -24,6 +24,12 @@ class VideoLoader:
         self.skip_frame = skip_frame
         self.randit = randit
         self.torch = torch
+        if stride is None:
+            stride = batch_size
+        else:
+            if int(self.batch_size) % stride != 0:
+                raise Exception("The stride must be a divisor of the batch size.")
+        self.iterator_stride = stride
         
     def reduce_latent(self, model, trans=True):
         self.randit = self.skip_frame = 0
@@ -111,6 +117,7 @@ class VideoLoader:
         if self.randit:
             np.random.shuffle(self.__frame_order)
         self.__frame_order = iter(self.__frame_order)
+        self.last_frames = []
         self.__stop = False
         return self
 
@@ -118,7 +125,7 @@ class VideoLoader:
         if self.__stop:
             raise StopIteration()
         
-        frames = []
+        frames = self.last_frames[self.iterator_stride:]
         while self.__cap.isOpened():
             try:
                 next_frame = next(self.__frame_order)
@@ -138,9 +145,10 @@ class VideoLoader:
                 self.__stop = True
                 break
             
-            if self.__frame_count % self.batch_size == 0:
+            if len(frames) % self.batch_size == 0:
                 break
 
+        self.last_frames = frames
         if self.__frame_count*(self.skip_frame+1) >= self.duration_frames:
             self.__stop = True
             
