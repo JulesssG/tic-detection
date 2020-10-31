@@ -124,15 +124,36 @@ class TemporalConvAE2(nn.Module):
             encoder_modules.append(nn.Conv3d(params[0], params[1], kernel_size=params[2], stride=params[3]))
             encoder_modules.append(nn.ReLU())
         self.encoder_convs = nn.Sequential(*encoder_modules)
+        self.end_shape = (c2, 1, 60, 60) if nlayers==2 else (c3, 1, 27, 27)
+        self.encoder_lin = nn.Sequential(nn.Linear(np.prod(self.end_shape), 2*hidden_dim),
+                                         nn.Linear(2*hidden_dim, hidden_dim))
 
         decoder_modules = []
         for params in conv_params[nlayers][::-1]:
             decoder_modules.append(nn.ConvTranspose3d(params[1], params[0], kernel_size=params[2], stride=params[3]))
             decoder_modules.append(nn.ReLU())
         self.decoder_convs = nn.Sequential(*decoder_modules)
+        self.decoder_lin   = nn.Sequential(nn.Linear(hidden_dim, 2*hidden_dim),
+                                           nn.Linear(2*hidden_dim, np.prod(self.end_shape)))
 
     def forward(self, x):
         x = self.encoder_convs(x)
+        x = self.encoder_lin(x.view(x.shape[0], -1))
+
+        x = self.decoder_lin(x)
+        x = x.view(-1, *self.end_shape)
+        x = self.decoder_convs(x)
+
+        return x
+
+    def transform(self, x):
+        x = self.encoder_convs(x)
+        x = self.encoder_lin(x.view(x.shape[0], -1))
+
+        return x
+
+    def inverse_transform(self, x):
+        x = self.decoder_lin(x).view(-1, *self.end_shape)
         x = self.decoder_convs(x)
 
         return x
