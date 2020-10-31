@@ -9,11 +9,11 @@ class PCAAutoEncoder(nn.Module):
         self.shape = shape
         self.to_lower_rep = nn.Linear(infeatures, ncomp)
         self.from_lower_rep = nn.Linear(ncomp, infeatures)
-    
+
     def forward(self, x):
         x = x.view(x.shape[0], -1)
         x = self.from_lower_rep(self.to_lower_rep(x))
-        
+
         return x.view(x.shape[0], *self.shape)
 
 class OneHAutoEncoder(nn.Module):
@@ -24,36 +24,36 @@ class OneHAutoEncoder(nn.Module):
         self.ncomp = ncomp
         self.hidden_dim = 200
         self.to_lower_rep = nn.Sequential(nn.Linear(infeatures, self.hidden_dim),
-                                          nl(), 
+                                          nl(),
                                           nn.Linear(self.hidden_dim, ncomp))
         self.from_lower_rep = nn.Sequential(nn.Linear(ncomp, self.hidden_dim),
                                            nl(),
                                            nn.Linear(self.hidden_dim, infeatures))
-        
+
     def forward(self, x):
         x = x.view(x.shape[0], -1)
         x = self.from_lower_rep(self.to_lower_rep(x))
-        
+
         return x.view(x.shape[0], *self.shape)
-    
+
 class SpatialConvAE(nn.Module):
     def __init__(self, inchannels, ncomp, nl=nn.ReLU, chans=[128, 128, 64]):
         super().__init__()
         self.ncomp = ncomp
         self.chans = chans
-        
+
         self.encoder_convs = nn.Sequential(nn.Conv2d(inchannels, chans[0], kernel_size=26, stride=5), nl(), # 47
                                            nn.Conv2d(chans[0], chans[1], kernel_size=11, stride=3), nl(), # 13
                                            nn.Conv2d(chans[1], chans[2], kernel_size=6), nl()) # 8
-        
+
         self.encoder_lin = nn.Linear(chans[2]*8*8, ncomp)
         self.decoder_lin = nn.Linear(ncomp, chans[2]*8*8)
-        
+
         self.decoder_convs = nn.Sequential(nn.ConvTranspose2d(chans[2], chans[1], kernel_size=6), nl(),
                                            nn.ConvTranspose2d(chans[1], chans[0], kernel_size=11, stride=3), nl(),
                                            nn.ConvTranspose2d(chans[0], inchannels, kernel_size=26, stride=5))
-        
-        
+
+
     def forward(self, x):
         x = self.encoder_convs(x)
         x = x.view(x.shape[0], -1)
@@ -61,45 +61,78 @@ class SpatialConvAE(nn.Module):
         x = self.decoder_lin(x)
         x = x.view(x.shape[0], self.chans[2], 8, 8)
         x = self.decoder_convs(x)
-        
+
         return x
-    
+
 class TemporalConvAE(nn.Module):
     def __init__(self, inchannels, nlayers, layerchans):
         super().__init__()
         self.inchannels = inchannels
         self.layerchans = layerchans
         c1 = c2 = c3 = c4 = c5 = layerchans
-        
+
         conv_params = [(inchannels, c1, 8, 2), # (1, c1, 29, 125, 125)
                        (c1, c2, 7, (1, 2, 2)), # (1, c2, 23, 60, 60)
                        (c2, c3, 8, (1, 2, 2)), # (1, c3, 16, 27, 27)
                        (c3, c4, 7, (1, 2, 2)), # (1, c4, 10, 11, 11)
                        (c4, c5, 5, (1, 2, 2))] # (1, c5, 6, 4, 4)
-        
+
         encoder_modules = []
         for params in conv_params[:nlayers]:
             encoder_modules.append(nn.Conv3d(params[0], params[1], kernel_size=params[2], stride=params[3]))
             encoder_modules.append(nn.ReLU())
         self.encoder_convs = nn.Sequential(*encoder_modules)
-        
+
         decoder_modules = []
         for params in conv_params[:nlayers][::-1]:
             decoder_modules.append(nn.ConvTranspose3d(params[1], params[0], kernel_size=params[2], stride=params[3]))
             decoder_modules.append(nn.ReLU())
         self.decoder_convs = nn.Sequential(*decoder_modules)
-        
+
         """
         self.encoder_convs = nn.Sequential(nn.Conv3d(inchannels, c1, kernel_size=8, stride=2), nn.ReLU(), # 125
                                           nn.Conv3d(c1, c2, kernel_size=7, stride=2), nn.ReLU(), nn.ReLU(), # 60
                                           nn.Conv3d(c2, c3, kernel_size=8, stride=2), nn.ReLU(), # 27
                                           nn.Conv3d(c3, c4, kernel_size=7, stride=2), nn.ReLU(),  # 11
                                           nn.Conv3d(c4, c5, kernel_size=5, stride=2), nn.ReLU())  # 4
-                                          
+
         """
-        
+
     def forward(self, x):
         x = self.encoder_convs(x)
         x = self.decoder_convs(x)
-        
+
+        return x
+
+class TemporalConvAE2(nn.Module):
+    def __init__(self, inchannels, nlayers, layerchans, hidden_dim):
+        super().__init__()
+        self.inchannels = inchannels
+        self.layerchans = layerchans
+        c1 = c2 = c3 = c4 = c5 = layerchans
+
+        conv_params = {2: [(inchannels, c1, 8, 2),          # (1, c1, 5, 125, 125)
+                           (c1, c2, (5, 7, 7), (1, 2, 2))], # (1, c2, 1, 60, 60)
+
+                       3: [(inchannels, c1, 8, 2),          # (1, c1, 5, 125, 125)
+                           (c1, c2, (3, 7, 7), (1, 2, 2)),  # (1, c2, 3, 60, 60)
+                           (c2, c3, (3, 8, 8), (1, 2, 2))]  # (1, c3, 1, 27, 27)
+        }
+
+        encoder_modules = []
+        for params in conv_params[nlayers]:
+            encoder_modules.append(nn.Conv3d(params[0], params[1], kernel_size=params[2], stride=params[3]))
+            encoder_modules.append(nn.ReLU())
+        self.encoder_convs = nn.Sequential(*encoder_modules)
+
+        decoder_modules = []
+        for params in conv_params[nlayers][::-1]:
+            decoder_modules.append(nn.ConvTranspose3d(params[1], params[0], kernel_size=params[2], stride=params[3]))
+            decoder_modules.append(nn.ReLU())
+        self.decoder_convs = nn.Sequential(*decoder_modules)
+
+    def forward(self, x):
+        x = self.encoder_convs(x)
+        x = self.decoder_convs(x)
+
         return x
