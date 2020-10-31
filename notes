@@ -217,6 +217,7 @@ For the autoencoder with one hidden layer, it works way better. It achieves 17 e
 The spatial convolutional AE still is very slow, but seems to converge towards a great approximation.
 
 TAG: week4
+
 Week 5:
 Temporal convolution should be the way to go so the goal is to one step at a time create such a model.
 
@@ -228,6 +229,7 @@ Conclusions:
 - 2 channels and 32 channels seems like a good compromise.
 
 TAG: week5
+
 Week 6:
 Remarks on temporal convolutions so far:
 - May be better to combine spatial convs + LSTM (see 2016-ICLR-video-autoencoder's structure)
@@ -236,5 +238,8 @@ Remarks on temporal convolutions so far:
 - Because of the last bullet point, at test time to try to predict each frame we have to run the temporal convolution for the chosen time interval for each frame. Meaning, for the current setup (64 frames as input to the model) to predict each frame the model has to process 64 frames, which is really time consuming.
 - Another disadvantage of 64 frames as input for the model is that the bottleneck of the autoencoder (the low dimensional representation) must contain information relative to all those frames, even tho they are not all useful.
 - The argument to iterate in a random order was True for all experiments, this does not make much sense for our application, as the temporal convolutions are there to capture temporal dependencies.
+- The training may benefit (in the future) from a better loss function. With for example the gradient of the image to preserve edges.
 
 Added the possibility to configure the stride when iterating on the video. This facilitates the iteration for temporal convolutions.
+
+Added criterion (not using it yet) that combine the mse with the gradient, to preserve the edges.
