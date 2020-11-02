@@ -4,11 +4,11 @@ import torch
 import datetime
 from matplotlib import pyplot as plt
     
-def write_video(filename, frames, width, height, fps, gray=False):
-    if gray:
-        writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), fps, (width, height), 0)
+def write_video(filename, frames, meta):
+    if meta['gray']:
+        writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), meta['fps'], (meta['width'], meta['height']), 0)
     else:
-        writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), fps, (width, height))
+        writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), meta['fps'], (meta['width'], meta['height']))
     
     for frame in np.clip(np.around(frames), 0, 255).astype(np.uint8):
         writer.write(frame)
