@@ -75,7 +75,7 @@ def plot(xs, ys, **kwargs):
         
     if 'labels' in kwargs:
         for i in range(len(ys)):
-            if len(np.shape(xs)) > 1:
+            if not str(xs[0]).isnumeric():
                 plt.plot(xs[i], ys[i], styles[i], label=kwargs['labels'][i])
             else:
                 plt.plot(xs, ys[i], styles[i], label=kwargs['labels'][i])
