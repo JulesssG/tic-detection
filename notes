@@ -230,7 +230,7 @@ Conclusions:
 
 TAG: week5
 
-Week 6:
+Week 6 and 7:	(Laptop died during the week 6)
 Remarks on temporal convolutions so far:
 - May be better to combine spatial convs + LSTM (see 2016-ICLR-video-autoencoder's structure)
 - More than 2 seconds as batch size to predict the next frame does not make much sense, 32 as maximum maybe
@@ -243,3 +243,5 @@ Remarks on temporal convolutions so far:
 Added the possibility to configure the stride when iterating on the video. This facilitates the iteration for temporal convolutions.
 
 Added criterion (not using it yet) that combine the mse with the gradient, to preserve the edges.
+
+Tried to add a one hidden fc layer at the end of the encoder and beginning of decoder, did not seem to improve the performance of the model.

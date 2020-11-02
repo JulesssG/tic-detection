@@ -3,14 +3,16 @@ import torch
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True, stride=None):
+    def __init__(self, filename, start=0, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True, stride=None):
         self.filename = filename
         self.gray = gray
         self.batch_size = batch_size
         cap = cv2.VideoCapture(filename)
         self.total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         self.fps = round(cap.get(cv2.CAP_PROP_FPS))
-        self.duration_frames = min(self.total_frames, np.ceil(duration*self.fps/batch_size)*batch_size)
+        self.start = start
+        self.start_frame = np.ceil(start*self.fps/batch_size)*batch_size
+        self.duration_frames = int(min(self.total_frames, np.ceil(duration*self.fps/batch_size)*batch_size))
         self.duration = self.duration_frames/self.fps
         self.width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -21,7 +23,7 @@ class VideoLoader:
             self.width, self.height = scale
         else:
             self.scale = False
-        self.skip_frame = skip_frame
+        self.skip_frame = int(skip_frame)
         self.randit = randit
         self.torch = torch
         if stride is None:
@@ -54,6 +56,7 @@ class VideoLoader:
     def get_all_frames(self):
         frames = []
         cap = cv2.VideoCapture(self.filename)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, self.start_frame)
         current_frame = 0
         while cap.isOpened():
             ret, frame = cap.read()
@@ -113,7 +116,7 @@ class VideoLoader:
     def __iter__(self):
         self.__cap = cv2.VideoCapture(self.filename)
         self.__frame_count = 0
-        self.__frame_order = np.arange(1, self.duration_frames+1)
+        self.__frame_order = np.arange(self.start_frame, self.start_frame+self.duration_frames)
         if self.randit:
             np.random.shuffle(self.__frame_order)
         self.__frame_order = iter(self.__frame_order)
@@ -129,7 +132,7 @@ class VideoLoader:
         while self.__cap.isOpened():
             try:
                 next_frame = next(self.__frame_order)
-                self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame - 1)
+                self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame)
                 for _ in range(self.skip_frame):
                     next(self.__frame_order)
             except StopIteration:
