@@ -1,0 +1,4 @@
+name: Basic Python (3.7) Project
+  description: The simplest Python-3.7-based renku project with a basic directory structure and necessary supporting files.
+  variables:
+    description: Tic detection from videos using Autoencoders
