@@ -1,0 +1,18 @@
+'@id': https://localhost/projects/jules.gottraux/test
+'@type':
+- http://schema.org/Project
+- http://www.w3.org/ns/prov#Location
+http://schema.org/agent: 0.11.7.dev0+dirty
+http://schema.org/creator:
+  '@id': mailto:jules.gottraux@epfl.ch
+  '@type':
+  - http://schema.org/Person
+  - http://www.w3.org/ns/prov#Person
+  http://schema.org/affiliation: null
+  http://schema.org/alternateName: null
+  http://schema.org/email: jules.gottraux@epfl.ch
+  http://schema.org/name: Jules Gottraux
+  http://www.w3.org/2000/01/rdf-schema#label: Jules Gottraux
+http://schema.org/dateCreated: '2020-11-03T12:10:07.130350+00:00'
+http://schema.org/name: test
+http://schema.org/schemaVersion: '8'
