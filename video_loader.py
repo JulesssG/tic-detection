@@ -3,7 +3,7 @@ import torch
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, start=0, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True, stride=None):
+    def __init__(self, filename, start=0, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True, stride=None, sample_shape=None):
         self.filename = filename
         self.gray = gray
         self.batch_size = batch_size
@@ -32,10 +32,11 @@ class VideoLoader:
             if int(self.batch_size) % stride != 0:
                 raise Exception("The stride must be a divisor of the batch size.")
         self.iterator_stride = stride
-        
+        self.sample_shape = sample_shape
+
     def reduce_latent(self, model, trans=True):
         self.randit = self.skip_frame = 0
-        
+
         reconstructed_frames = []
         for frames in self:
             # WILL ALWAYS BE TRANSFORM -> INV_TRANSFORM
@@ -52,7 +53,7 @@ class VideoLoader:
         else:
             reconstructed_frames = np.vstack(reconstructed_frames)
         return reconstructed_frames
-        
+
     def get_all_frames(self):
         frames = []
         cap = cv2.VideoCapture(self.filename)
@@ -68,16 +69,18 @@ class VideoLoader:
                 current_frame += 1
             else:
                 cap.release()
-        
+
+        if self.sample_shape is not None:
+            frames = np.reshape(frames, (-1, *self.sample_shape))
         return self.__from_frame_list(frames)
-    
+
     def get_random_frames(self, frames_ratio, seed=42):
         nframes = int(self.duration_frames * frames_ratio)
         frames = []
         cap = cv2.VideoCapture(self.filename)
         np.random.seed(seed)
-        frame_ids = np.random.choice(np.arange(self.duration_frames), 
-                                     size=nframes, 
+        frame_ids = np.random.choice(np.arange(self.duration_frames),
+                                     size=nframes,
                                      replace=False, )
         while cap.isOpened():
             ret, frame = cap.read()
@@ -87,32 +90,26 @@ class VideoLoader:
                     frames.append(self.frame_transform(frame))
             else:
                 cap.release()
-        
+
         return self.__from_frame_list(frames)
-            
+
 
     def frame_transform(self, frame):
         if self.scale:
             frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
         if self.gray:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            
+
         return frame
-    
+
     def __from_frame_list(self, frames):
         if self.torch:
             frames = torch.FloatTensor(frames)
-            if self.gray:
-                frames = frames.unsqueeze(1)
-            else:
-                frames = frames.permute((0, 3, 1, 2))
         else:
             frames = np.array(frames)
-            if not self.gray:
-                frames = np.transpose(frames, axes=(0,3, 1, 2))
-        
+
         return frames
-    
+
     def __iter__(self):
         self.__cap = cv2.VideoCapture(self.filename)
         self.__frame_count = 0
@@ -127,7 +124,7 @@ class VideoLoader:
     def __next__(self):
         if self.__stop:
             raise StopIteration()
-        
+
         frames = self.last_frames[self.iterator_stride:]
         while self.__cap.isOpened():
             try:
@@ -139,7 +136,7 @@ class VideoLoader:
                 self.__stop = True
                 break
             ret, frame = self.__cap.read()
-                
+
             if ret:
                 frames.append(self.frame_transform(frame))
                 self.__frame_count += 1
@@ -147,25 +144,27 @@ class VideoLoader:
                 self.__cap.release()
                 self.__stop = True
                 break
-            
+
             if len(frames) % self.batch_size == 0:
                 break
 
         self.last_frames = frames
         if self.__frame_count*(self.skip_frame+1) >= self.duration_frames:
             self.__stop = True
-            
+
+        if self.sample_shape is not None:
+            frames = np.reshape(frames, (-1, *self.sample_shape))
         return self.__from_frame_list(frames)
-    
+
     def write(self, filename):
         last_torch = self.torch
         self.torch = False
-        
+
         if self.gray:
             writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), self.fps, (self.width, self.height), 0)
         else:
             writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), self.fps, (self.width, self.height))
-    
+
         cap = cv2.VideoCapture(self.filename)
         current_frame = 0
         while cap.isOpened():
@@ -181,6 +180,6 @@ class VideoLoader:
                 current_frame += 1
             else:
                 cap.release()
-        
+
         writer.release()
         self.torch = last_torch
