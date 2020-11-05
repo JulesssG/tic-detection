@@ -35,6 +35,14 @@ class OneHAutoEncoder(nn.Module):
         x = self.from_lower_rep(self.to_lower_rep(x))
 
         return x.view(x.shape[0], *self.shape)
+    
+    def encode(self, x):
+        x = x.view(x.shape[0], -1)
+        
+        return  self.to_lower_rep(x)
+
+    def decode(self, x):
+        return self.from_lower_rep(x).view(x.shape[0], *self.shape)
 
 class SpatialConvAE(nn.Module):
     def __init__(self, inchannels, ncomp, nl=nn.ReLU, chans=[128, 128, 64]):
@@ -87,7 +95,7 @@ class TemporalConvAE(nn.Module):
         self.encoder_convs = nn.Sequential(*encoder_modules)
         self.end_shape = (c2, 1, 60, 60) if nlayers==2 else (c3, 1, 27, 27)
         if self.low_dim_rep is not None:
-          self.low_dim_mapping = nn.Sequential(nn.Linear(np.prod(self.end_shape), self.low_dim_rep), 
+            self.low_dim_mapping = nn.Sequential(nn.Linear(np.prod(self.end_shape), self.low_dim_rep), 
                                                nn.Linear(self.low_dim_rep, np.prod(self.end_shape)))
 
         decoder_modules = []

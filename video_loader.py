@@ -42,9 +42,9 @@ class VideoLoader:
             # WILL ALWAYS BE TRANSFORM -> INV_TRANSFORM
             if trans:
                 if self.torch:
-                    reconstructed_frames.append(model.inverse_transform(*model.transform(frames)).detach())
+                    reconstructed_frames.append(model.decode(*model.encode(frames)).detach())
                 else:
-                    reconstructed_frames.append(model.inverse_transform(*model.transform(frames)))
+                    reconstructed_frames.append(model.decode(*model.encode(frames)))
             else:
                 reconstructed_frames.append(model(frames).detach())
 
