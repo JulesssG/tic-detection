@@ -245,3 +245,12 @@ Added the possibility to configure the stride when iterating on the video. This 
 Added criterion (not using it yet) that combine the mse with the gradient, to preserve the edges.
 
 Tried to add a one hidden fc layer at the end of the encoder and beginning of decoder, did not seem to improve the performance of the model.
+
+Compared all models' reconstruction error and save figures and models. The convolutional network and the OneH autoencoder have some potential but the PCA is still far ahead. Compared how the convolutional model behave when we force its latent dimension (mapping with linear layer).
+
+TAG: week7
+
+Week 8:
+Goals:
+- Incorporate dynamical system's prediction of frame to pipeline and minimze the prediction
+- See technical_notes.pdf for precisions
