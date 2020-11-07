@@ -17,13 +17,13 @@ class custom_pca():
         if len(shape) > 1:
             frames = frames.reshape(frames.shape[0], -1)
         frames = (frames - self.mean) / self.std
-        frames_reduced = self.pc.T @ frames.T
+        frames_reduced = frames @ self.pc
         
-        return frames_reduced.T, shape
+        return frames_reduced, shape
         
     def decode(self, frames, shape=None, cast=True):
         nframes = frames.shape[0]
-        frames_reconstructed = (self.pc @ frames.T).T
+        frames_reconstructed = frames @ self.pc.T
         frames_reconstructed = (frames_reconstructed * self.std) + self.mean
         
         if cast:

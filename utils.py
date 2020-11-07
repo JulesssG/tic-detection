@@ -30,10 +30,10 @@ def reconstruction_error(frames1, frames2):
 def crit(output, gt):
     return torch.sqrt(torch.mean((output - gt)**2))
 
-def normalize_frames(frames, **kwargs):
-    mean = kwargs['mean'] if 'mean' in kwargs else np.mean(frames)
+def standardize_frames(frames, **kwargs):
+    mean = kwargs['mean'] if 'mean' in kwargs else torch.mean(frames)
     frames = frames - mean
-    std  = kwargs['std'] if 'std' in kwargs else np.std(frames)
+    std  = kwargs['std'] if 'std' in kwargs else torch.std(frames)
     frames = frames / std
     
     return frames
