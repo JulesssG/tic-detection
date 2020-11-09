@@ -28,13 +28,15 @@ def reconstruction_error(frames1, frames2):
     return np.sqrt(np.mean((frames1 - frames2)**2))
 
 def crit(output, gt):
-    return torch.sqrt(torch.mean((output - gt)**2))
+    output = output.view(output.shape[0], -1)
+    gt = gt.view(gt.shape[0], -1)
+    return torch.clip(torch.sqrt(torch.mean((output - gt)**2)), 0, 255)
 
 def standardize_frames(frames, **kwargs):
     mean = kwargs['mean'] if 'mean' in kwargs else torch.mean(frames)
-    frames = frames - mean
+    frames = frames - mean.item()
     std  = kwargs['std'] if 'std' in kwargs else torch.std(frames)
-    frames = frames / std
+    frames = frames / std.item()
     
     return frames
 
