@@ -108,7 +108,7 @@ class VideoLoader:
         if self.torch:
             frames = torch.FloatTensor(frames)
         else:
-            frames = np.array(frames)
+            frames = np.array(frames).astype(np.float32)
 
         return frames
 
