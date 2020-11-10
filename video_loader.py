@@ -3,7 +3,8 @@ import torch
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, start=0, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, torch=True, stride=None, sample_shape=None):
+    def __init__(self, filename, start=0, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False, 
+                 torch=True, stride=None, sample_shape=None, iterator_next_frame=None):
         self.filename = filename
         self.gray = gray
         self.batch_size = batch_size
@@ -33,6 +34,7 @@ class VideoLoader:
                 raise Exception("The stride must be a divisor of the batch size.")
         self.iterator_stride = stride
         self.sample_shape = sample_shape
+        self.iterator_next_frame = iterator_next_frame
 
     def reduce_latent(self, model, trans=True):
         self.randit = self.skip_frame = 0
@@ -42,9 +44,9 @@ class VideoLoader:
             # WILL ALWAYS BE TRANSFORM -> INV_TRANSFORM
             if trans:
                 if self.torch:
-                    reconstructed_frames.append(model.inverse_transform(*model.transform(frames)).detach())
+                    reconstructed_frames.append(model.decode(*model.encode(frames)).detach())
                 else:
-                    reconstructed_frames.append(model.inverse_transform(*model.transform(frames)))
+                    reconstructed_frames.append(model.decode(*model.encode(frames)))
             else:
                 reconstructed_frames.append(model(frames).detach())
 
@@ -106,7 +108,7 @@ class VideoLoader:
         if self.torch:
             frames = torch.FloatTensor(frames)
         else:
-            frames = np.array(frames)
+            frames = np.array(frames).astype(np.float32)
 
         return frames
 
@@ -122,6 +124,7 @@ class VideoLoader:
         return self
 
     def __next__(self):
+        TEMP=[]
         if self.__stop:
             raise StopIteration()
 
@@ -129,6 +132,7 @@ class VideoLoader:
         while self.__cap.isOpened():
             try:
                 next_frame = next(self.__frame_order)
+                TEMP.append(next_frame)
                 self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame)
                 for _ in range(self.skip_frame):
                     next(self.__frame_order)
@@ -152,9 +156,15 @@ class VideoLoader:
         if self.__frame_count*(self.skip_frame+1) >= self.duration_frames:
             self.__stop = True
 
+        if self.iterator_next_frame:
+            frames, next_frame = frames[:-1], frames[-1]
         if self.sample_shape is not None:
             frames = np.reshape(frames, (-1, *self.sample_shape))
-        return self.__from_frame_list(frames)
+            
+        if self.iterator_next_frame:
+            return self.__from_frame_list(frames), next_frame
+        else:
+            return self.__from_frame_list(frames)
 
     def write(self, filename):
         last_torch = self.torch

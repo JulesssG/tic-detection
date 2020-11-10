@@ -6,6 +6,7 @@ class PCAAutoEncoder(nn.Module):
     def __init__(self, shape, ncomp):
         super().__init__()
         infeatures = np.prod(shape)
+        self.ncomp = ncomp
         self.shape = shape
         self.to_lower_rep = nn.Linear(infeatures, ncomp)
         self.from_lower_rep = nn.Linear(ncomp, infeatures)
@@ -14,6 +15,16 @@ class PCAAutoEncoder(nn.Module):
         x = x.view(x.shape[0], -1)
         x = self.from_lower_rep(self.to_lower_rep(x))
 
+        return x.view(x.shape[0], *self.shape)
+
+    def encode(self, x):
+        x = x.view(x.shape[0], -1)
+        
+        return self.to_lower_rep(x)
+    
+    def decode(self, x):
+        x = self.from_lower_rep(x)
+        
         return x.view(x.shape[0], *self.shape)
 
 class OneHAutoEncoder(nn.Module):
@@ -35,6 +46,14 @@ class OneHAutoEncoder(nn.Module):
         x = self.from_lower_rep(self.to_lower_rep(x))
 
         return x.view(x.shape[0], *self.shape)
+    
+    def encode(self, x):
+        x = x.view(x.shape[0], -1)
+        
+        return  self.to_lower_rep(x)
+
+    def decode(self, x):
+        return self.from_lower_rep(x).view(x.shape[0], *self.shape)
 
 class SpatialConvAE(nn.Module):
     def __init__(self, inchannels, ncomp, nl=nn.ReLU, chans=[128, 128, 64]):
@@ -65,12 +84,12 @@ class SpatialConvAE(nn.Module):
         return x
 
 class TemporalConvAE(nn.Module):
-    def __init__(self, inchannels, nlayers, layerchans, low_dim_rep=None):
+    def __init__(self, inchannels, nlayers, layerchans, ncomp=None):
         super().__init__()
         self.inchannels = inchannels
         self.layerchans = layerchans
         c1 = c2 = c3 = c4 = c5 = layerchans
-        self.low_dim_rep = low_dim_rep
+        self.ncomp = ncomp
 
         conv_params = {2: [(inchannels, c1, 8, 2),          # (1, c1, 5, 125, 125)
                            (c1, c2, (5, 7, 7), (1, 2, 2))], # (1, c2, 1, 60, 60)
@@ -86,9 +105,9 @@ class TemporalConvAE(nn.Module):
             encoder_modules.append(nn.ReLU())
         self.encoder_convs = nn.Sequential(*encoder_modules)
         self.end_shape = (c2, 1, 60, 60) if nlayers==2 else (c3, 1, 27, 27)
-        if self.low_dim_rep is not None:
-          self.low_dim_mapping = nn.Sequential(nn.Linear(np.prod(self.end_shape), self.low_dim_rep), 
-                                               nn.Linear(self.low_dim_rep, np.prod(self.end_shape)))
+        if self.ncomp is not None:
+            self.to_lower_rep = nn.Linear(np.prod(self.end_shape), self.ncomp)
+            self.from_lower_rep = nn.Linear(self.ncomp, np.prod(self.end_shape))
 
         decoder_modules = []
         for params in conv_params[nlayers][::-1]:
@@ -98,8 +117,29 @@ class TemporalConvAE(nn.Module):
         
     def forward(self, x):
         x = self.encoder_convs(x)
-        if self.low_dim_rep is not None:
-          x = self.low_dim_mapping(x.view(x.shape[0], -1)).view(-1, *self.end_shape)
+        if self.ncomp is not None:
+            x = self.to_lower_rep(x.view(x.shape[0], -1))
+            x = self.from_lower_rep(x).view(-1, *self.end_shape)
+        x = self.decoder_convs(x)
+        
+        return x
+    
+    def encode(self, x):
+        if self.ncomp is None:
+            print('Cannot encode without knowing the latent dimension (ncomp).')
+            return
+        
+        x = self.encoder_convs(x)
+        x = self.to_lower_rep(x.view(x.shape[0], -1))
+        
+        return x
+        
+    def decode(self, x):
+        if self.ncomp is None:
+            print('Cannot decode without knowing the latent dimension (ncomp).')
+            return
+        
+        x = self.from_lower_rep(x).view(-1, *self.end_shape)
         x = self.decoder_convs(x)
         
         return x
