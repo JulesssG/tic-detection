@@ -6,6 +6,7 @@ class PCAAutoEncoder(nn.Module):
     def __init__(self, shape, ncomp):
         super().__init__()
         infeatures = np.prod(shape)
+        self.ncomp = ncomp
         self.shape = shape
         self.to_lower_rep = nn.Linear(infeatures, ncomp)
         self.from_lower_rep = nn.Linear(ncomp, infeatures)
@@ -14,6 +15,16 @@ class PCAAutoEncoder(nn.Module):
         x = x.view(x.shape[0], -1)
         x = self.from_lower_rep(self.to_lower_rep(x))
 
+        return x.view(x.shape[0], *self.shape)
+
+    def encode(self, x):
+        x = x.view(x.shape[0], -1)
+        
+        return self.to_lower_rep(x)
+    
+    def decode(self, x):
+        x = self.from_lower_rep(x)
+        
         return x.view(x.shape[0], *self.shape)
 
 class OneHAutoEncoder(nn.Module):
