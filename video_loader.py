@@ -124,6 +124,7 @@ class VideoLoader:
         return self
 
     def __next__(self):
+        TEMP=[]
         if self.__stop:
             raise StopIteration()
 
@@ -131,6 +132,7 @@ class VideoLoader:
         while self.__cap.isOpened():
             try:
                 next_frame = next(self.__frame_order)
+                TEMP.append(next_frame)
                 self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame)
                 for _ in range(self.skip_frame):
                     next(self.__frame_order)
