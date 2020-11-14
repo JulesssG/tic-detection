@@ -253,7 +253,12 @@ TAG: week7
 Week 8:
 Goals:
 - Incorporate dynamical system's prediction of frame to pipeline and minimze the prediction
-- See technical_notes.pdf for precisions
+- See technical_notes.pdf for precisions (https://www.overleaf.com/project/5fa510249465963b8b085f0b)
 
 Midterm presentation: see slides and repo for details
 TAG: week8, midterm
+
+Week 9:
+The videos from Joey and Joseph are not yet available so for the moment we'll use another dataset to test the models, namely JIGSAWS (https://cirl.lcsr.jhu.edu/research/hmm/datasets/jigsaws_release/). Next steps are:
+- Look into the UNet autoencoder, to have a model proven to work to compare (and use as is if it gives good results).
+- Implement the classification part based on the transition matrix.
