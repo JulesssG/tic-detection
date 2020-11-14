@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import datetime
 from matplotlib import pyplot as plt
+from scipy.linalg import solve_sylvester
     
 def write_video(filename, frames, meta):
     if meta['gray']:
@@ -100,3 +101,34 @@ def sec2string(sec):
     secr = round(sec)
     
     return str(datetime.timedelta(seconds=secr)).strip("00:")
+
+def subspace_angles(As, C1=None, C2=None, p=None):
+    nA, n1, n2 = As.shape
+    if nA != 2 or n1 != n2:
+        print('Function expect an array with exactly two matrix A of size nxn.')
+        return
+    n = n1
+    
+    if C1 is None:
+        C1 = np.eye(p, M=n)
+    if C2 is None:
+        C2 = np.eye(p, M=n)
+    Cs = np.array([C1, C2])
+    
+    Ps, Ps_ = np.zeros((2, 2, n, n)), np.zeros((2, n, n))
+    for i in range(2):
+        for j in range(2):
+            A_sylv = np.linalg.pinv(As[i]).T # Inverse or pseudo-inverse?
+            B_sylv = -As[j]
+            C_sylv = A_sylv @ Cs[i].T @ Cs[j]
+            Ps[i,j] = solve_sylvester(A_sylv, B_sylv, C_sylv)
+    for i,j in [(0,1), (1,0)]:
+        Ps_[i] = (np.linalg.pinv(Ps[i,i]) @ Ps[i,j]
+                    @ np.linalg.pinv(Ps[j,j]) @ Ps[j,i])
+    
+    
+    eigens = np.concatenate((np.linalg.eig(Ps_[0])[0], np.linalg.eig(Ps_[1])[0]))
+    eigens = np.arccos(np.sqrt(eigens))
+    
+    return eigens
+        
