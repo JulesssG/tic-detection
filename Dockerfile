@@ -23,6 +23,7 @@ RUN apt-get update && \
     jupyter labextension install jupyterlab_vim \
     jupyter labextension install @wallneradam/trailing_space_remover
 USER ${NB_USER}
+cat $HOME/.bashrc > $HOME/testbash
 
 # install the python dependencies
 COPY requirements.txt environment.yml /tmp/
