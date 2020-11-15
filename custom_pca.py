@@ -10,20 +10,20 @@ class custom_pca():
         self.std = np.std(frames)
         frames = (frames - self.mean) / self.std
         frames = frames.reshape(frames.shape[0], -1)
-        self.pc, _, _ = randomized_svd(frames.T, self.ncomp)
+        self.C, _, _ = randomized_svd(frames.T, self.ncomp)
         
     def encode(self, frames):
         shape = frames.shape[1:]
         if len(shape) > 1:
             frames = frames.reshape(frames.shape[0], -1)
         frames = (frames - self.mean) / self.std
-        frames_reduced = frames @ self.pc
+        frames_reduced = frames @ self.C
         
         return frames_reduced, shape
         
     def decode(self, frames, shape=None, cast=True):
         nframes = frames.shape[0]
-        frames_reconstructed = frames @ self.pc.T
+        frames_reconstructed = frames @ self.C.T
         frames_reconstructed = (frames_reconstructed * self.std) + self.mean
         
         if cast:

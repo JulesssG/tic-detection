@@ -5,6 +5,8 @@ from torch import nn
 import datetime
 from matplotlib import pyplot as plt
 from scipy.linalg import solve_sylvester
+
+from custom_pca import *
     
 def write_video(filename, frames, meta):
     if meta['gray']:
@@ -25,8 +27,11 @@ def show_video(frames, imduration=int(1000/24.0)):
     cv2.destroyAllWindows()
 
 def reconstruction_error(frames1, frames2):
-    if frames1.shape != frames2.shape:
-        return -1
+    if isinstance(frames1, torch.Tensor):
+        frames1 = frames1.detach().cpu().numpy()
+    if isinstance(frames2, torch.Tensor):
+        frames2 = frames2.detach().cpu().numpy()
+
     return np.sqrt(np.mean((frames1 - frames2)**2))
 
 def crit(output, gt):
@@ -103,41 +108,73 @@ def sec2string(sec):
     
     return str(datetime.timedelta(seconds=secr)).strip("00:")
 
-def subspace_angles(A1, A2, C1=None, C2=None, **kwargs):
+def subspace_angles(model1, model2, **kwargs):
     """
-    Expect C1 and C2 tensor or numpy array or None. If both are None expect a
-    named argument p to know the dimension of the frames.
+    Expect two models as input, each model is a tuple (m, m_ds):
+        - m is the compression model, or the projection matrix C
+        - m_ds is the dynamical system model or the transition matrix A
+    If both models are non-linear projections, a named argument p is required with
+    the dimensions of the frames.
     
-    Expect A1, A2 to be numpy array or tensors. If Ai is passed as model such
-    as FramePredictor it expects a named argument Ai_key, the key in the 
-    state_dict of the model.
+    If a model is given instead of the matrix the key associated with the matrix 
+    must be provided (except if there is an attribute with same name as the required
+    matrix; A or C). For example if A1 is a torch module describing the dynamical 
+    system a named argument A1_key corresponding to the attribute containing the matrix
+    A must be provided.
     """
     # Extract A's
-    if isinstance(A1, nn.Module):
-        A1 = A1.state_dict[kwargs['A1_key']]
-    if isinstance(A2, nn.Module):
-        A2 = A2.state_dict[kwargs['A2_key']]
+    A1, A2 = model1[1], model2[1]
+    try:
+        if isinstance(A1, nn.Module):
+            A1 = A1.state_dict()[kwargs['A1_key']].T
+            A1 = A1.detach().cpu().numpy()
+        elif isinstance(A1, torch.Tensor):
+            A1 = A1.detach().cpu().numpy()
+        if isinstance(A2, nn.Module):
+            A2 = A2.state_dict()[kwargs['A2_key']].T
+            A2 = A2.detach().cpu().numpy()
+        elif isinstance(A2, torch.Tensor):
+            A2 = A2.detach().cpu().numpy()
+    except KeyError:
+        raise KeyError('You must provide the associated key for the dynamical system model.')
     n1, n2 = A1.shape, A2.shape
     if n1 != n2 or n1[0] != n1[1]:
-        print('Matrix A must be of same order and square.')
-        return
+        raise Error('Matrix A must be of same order and square.')
     n = n1[0]
-    if isinstance(A1, torch.Tensor):
-        A1 = A1.detach().cpu().numpy()
-    if isinstance(A2, torch.Tensor):
-        A2 = A2.detach().cpu().numpy()
     
     # Extract C's
-    p = C1.shape[0] if C1 is not None else C2.shape[0] if C2 is not None else kwargs['p']
+    C1, C2 = model1[0], model2[0]
+    if isinstance(C1, (custom_pca, nn.Module)):
+        if isinstance(C1, custom_pca):
+            C1 = C1.C
+        elif isinstance(C1, nn.Module):
+            C1 = C1.state_dict()[kwargs['C1_key']]
+        else:
+            C1 = None
+    if isinstance(C2, (custom_pca, nn.Module)):
+        if isinstance(C2, custom_pca):
+            C2 = C2.C
+        elif isinstance(C2, nn.Module):
+            C2 = C2.state_dict()[kwargs['C2_key']]
+        else:
+            C2 = None
+    try:
+        p = (C1.shape[0] if C1 is not None 
+             else C2.shape[0] if C2 is not None else kwargs['p'])
+    except KeyError:
+        raise KeyError('No C matrix detected, you must provide the dimension of the frames as named parameter p.')
     if C1 is None:
+        print("Using identity for model1's projection.")
         C1 = np.eye(p, M=n)
     elif isinstance(C1, torch.Tensor):
         C1 = C1.detach().cpu().numpy()
     if C2 is None:
+        print("Using identity for model2's projection.")
         C2 = np.eye(p, M=n)
     elif isinstance(C2, torch.Tensor):
         C2 = C2.detach().cpu().numpy()
     Cs = np.array([C1, C2])
+    #print(Cs[:, :5, :5])
     
     # Normalize A's
     norms = np.linalg.norm(np.stack((A1, A2)), ord=2, axis=(1,2))
@@ -164,3 +201,8 @@ def subspace_angles(A1, A2, C1=None, C2=None, **kwargs):
     
     return eigens
         
+def martin_dist(thetas):
+    return -np.log(np.prod(np.cos(thetas)**2))
+
+def frob_dist(thetas):
+    return 2*(np.sum(np.sin(thetas)**2))
