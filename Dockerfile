@@ -20,8 +20,7 @@ RUN apt-get update && \
     vim \
     libgl1-mesa-glx \
     nvidia-cuda-toolkit \
-    jupyter labextension install jupyterlab_vim \
-    jupyter labextension install @wallneradam/trailing_space_remover
+    
 USER ${NB_USER}
 cat $HOME/.bashrc > $HOME/testbash
 
@@ -31,6 +30,8 @@ RUN conda env update -q -f /tmp/environment.yml && \
     /opt/conda/bin/pip install -r /tmp/requirements.txt && \
     conda clean -y --all && \
     conda env export -n "root"
+    jupyter labextension install jupyterlab_vim && \
+    jupyter labextension install @wallneradam/trailing_space_remover
 
 ########################################################
 # Do not edit this section and do not add anything below
