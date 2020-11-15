@@ -30,20 +30,7 @@ RUN conda env update -q -f /tmp/environment.yml && \
     conda env export -n "root" && \
     jupyter labextension install @ryantam626/jupyterlab_vim && \
     jupyter labextension install @wallneradam/trailing_space_remover && \
-    echo "alias g='git'
-alias gs='git status -s -b'
-alias ga='git add'
-alias gc='git commit'
-alias gd='git diff'
-alias gb='git branch'
-alias gpl='git pull'
-alias gp='git push'
-alias gl='git --no-pager log -10 --oneline --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) -%C(red) %an%C(reset)%C(bold yellow)%+d%C(reset)''
-alias gll='git log --oneline --graph --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) -%C(red) %an%C(reset)%C(bold yellow)%+d%C(reset)''
-alias v='vim'
-alias ..='cd ..'
-alias -='cd -'
-alias gaddremote='git add remote gh https://github.com/JulesssG/tourette-tic-detector.git'" > $HOME/.bashrc
+    echo "alias g='git'\nalias gs='git status -s -b'\nalias ga='git add'\nalias gc='git commit'\nalias gd='git diff'\nalias gb='git branch'\nalias gpl='git pull'\nalias gp='git push'\nalias gl='git --no-pager log -10 --oneline --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) -%C(red) %an%C(reset)%C(bold yellow)%+d%C(reset)''\nalias gll='git log --oneline --graph --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) -%C(red) %an%C(reset)%C(bold yellow)%+d%C(reset)''\nalias v='vim'\nalias ..='cd ..'\nalias -='cd -'\nalias gaddremote='git add remote gh https://github.com/JulesssG/tourette-tic-detector.git'" > $HOME/.bashrc
 
 ########################################################
 # Do not edit this section and do not add anything below
