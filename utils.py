@@ -7,13 +7,13 @@ from matplotlib import pyplot as plt
 from scipy.linalg import solve_sylvester
 
 from custom_pca import *
-    
+
 def write_video(filename, frames, meta):
     if meta['gray']:
         writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), meta['fps'], (meta['width'], meta['height']), 0)
     else:
         writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*"MP4V"), meta['fps'], (meta['width'], meta['height']))
-    
+
     for frame in np.clip(np.around(frames), 0, 255).astype(np.uint8):
         writer.write(frame)
     writer.release()
@@ -44,44 +44,44 @@ def standardize_frames(frames, **kwargs):
     frames = frames - mean.item()
     std  = kwargs['std'] if 'std' in kwargs else torch.std(frames)
     frames = frames / std.item()
-    
+
     return frames
 
 def plot(xs, ys, **kwargs):
     if 'styles' in kwargs:
         styles = kwargs['styles']
     else:
-        styles = ['C'+str(c)+'-'+s for s in ['', '.', 'o', '^'] 
+        styles = ['C'+str(c)+'-'+s for s in ['', '.', 'o', '^']
                   for c in [0, 1, 2, 3, 6, 8, 9] ]
-    
+
     if len(ys) > len(styles):
         print('Duplicate styles')
-    
+
     if 'fontsize' in kwargs:
         plt.rcParams.update({'font.size': kwargs['fontsize']})
     else:
         plt.rcParams.update({'font.size': 12})
-        
-        
+
+
     if 'figsize' in kwargs:
         plt.figure(figsize=kwargs['figsize'])
     else:
         plt.figure(figsize=(15,10))
-        
+
     if 'xlabel' in kwargs:
         plt.xlabel(kwargs['xlabel'])
     if 'ylabel' in kwargs:
         plt.ylabel(kwargs['ylabel'])
-        
+
     if 'yrange' in kwargs:
         low, high = kwargs['yrange']
         plt.ylim(low, high)
-    
+
     if 'bound_to_plot' in kwargs:
         epoch, max_error = kwargs['bound_to_plot']
         ys = list(filter(lambda x: max(x[epoch:]) < max_error, ys))
-        
-        
+
+
     if 'labels' in kwargs:
         for i in range(len(ys)):
             if not str(xs[0]).isnumeric():
@@ -105,8 +105,8 @@ def sec2string(sec):
     if sec <= 60:
         return round(sec, 2)
     secr = round(sec)
-    
-    return str(datetime.timedelta(seconds=secr)).strip("00:")
+
+    return str(datetime.timedelta(seconds=secr))
 
 def subspace_angles(model1, model2, **kwargs):
     """
@@ -115,10 +115,10 @@ def subspace_angles(model1, model2, **kwargs):
         - m_ds is the dynamical system model or the transition matrix A
     If both models are non-linear projections, a named argument p is required with
     the dimensions of the frames.
-    
-    If a model is given instead of the matrix the key associated with the matrix 
+
+    If a model is given instead of the matrix the key associated with the matrix
     must be provided (except if there is an attribute with same name as the required
-    matrix; A or C). For example if A1 is a torch module describing the dynamical 
+    matrix; A or C). For example if A1 is a torch module describing the dynamical
     system a named argument A1_key corresponding to the attribute containing the matrix
     A must be provided.
     """
@@ -141,7 +141,7 @@ def subspace_angles(model1, model2, **kwargs):
     if n1 != n2 or n1[0] != n1[1]:
         raise Error('Matrix A must be of same order and square.')
     n = n1[0]
-    
+
     # Extract C's
     C1, C2 = model1[0], model2[0]
     if isinstance(C1, (custom_pca, nn.Module)):
@@ -159,7 +159,7 @@ def subspace_angles(model1, model2, **kwargs):
         else:
             C2 = None
     try:
-        p = (C1.shape[0] if C1 is not None 
+        p = (C1.shape[0] if C1 is not None
              else C2.shape[0] if C2 is not None else kwargs['p'])
     except KeyError:
         raise KeyError('No C matrix detected, you must provide the dimension of the frames as named parameter p.')
@@ -175,7 +175,7 @@ def subspace_angles(model1, model2, **kwargs):
         C2 = C2.detach().cpu().numpy()
     Cs = np.array([C1, C2])
     #print(Cs[:, :5, :5])
-    
+
     # Normalize A's
     norms = np.linalg.norm(np.stack((A1, A2)), ord=2, axis=(1,2))
     if norms[0] > 1:
@@ -183,7 +183,7 @@ def subspace_angles(model1, model2, **kwargs):
     if norms[1] > 1:
         A2 = 0.98*A2/norms[1]
     As = np.array([A1, A2])
-    
+
     Ps, Ps_ = np.zeros((2, 2, n, n)), np.zeros((2, n, n))
     for i in range(2):
         for j in range(2):
@@ -194,13 +194,13 @@ def subspace_angles(model1, model2, **kwargs):
     for i,j in [(0,1), (1,0)]:
         Ps_[i] = (np.linalg.pinv(Ps[i,i]) @ Ps[i,j]
                     @ np.linalg.pinv(Ps[j,j]) @ Ps[j,i])
-    
-    
+
+
     eigens = np.concatenate((np.linalg.eig(Ps_[0])[0], np.linalg.eig(Ps_[1])[0]))
     eigens = np.arccos(np.sqrt(eigens))
-    
+
     return eigens
-        
+
 def martin_dist(thetas):
     return -np.log(np.prod(np.cos(thetas)**2))
 
