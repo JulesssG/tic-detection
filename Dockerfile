@@ -28,7 +28,7 @@ COPY requirements.txt environment.yml /tmp/
 RUN conda env update -q -f /tmp/environment.yml && \
     /opt/conda/bin/pip install -r /tmp/requirements.txt && \
     conda clean -y --all && \
-    conda env export -n "root"
+    conda env export -n "root" && \
     jupyter labextension install jupyterlab_vim && \
     jupyter labextension install @wallneradam/trailing_space_remover && \
     cat $HOME/.bashrc > $HOME/testbash
