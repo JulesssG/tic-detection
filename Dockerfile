@@ -22,7 +22,6 @@ RUN apt-get update && \
     nvidia-cuda-toolkit \
     
 USER ${NB_USER}
-cat $HOME/.bashrc > $HOME/testbash
 
 # install the python dependencies
 COPY requirements.txt environment.yml /tmp/
@@ -31,7 +30,8 @@ RUN conda env update -q -f /tmp/environment.yml && \
     conda clean -y --all && \
     conda env export -n "root"
     jupyter labextension install jupyterlab_vim && \
-    jupyter labextension install @wallneradam/trailing_space_remover
+    jupyter labextension install @wallneradam/trailing_space_remover && \
+    cat $HOME/.bashrc > $HOME/testbash
 
 ########################################################
 # Do not edit this section and do not add anything below
