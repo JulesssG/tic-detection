@@ -20,7 +20,8 @@ RUN apt-get update && \
     vim \
     libgl1-mesa-glx \
     nvidia-cuda-toolkit \
-    curl
+    curl \
+    zip
 USER ${NB_USER}
 
 # install the python dependencies
