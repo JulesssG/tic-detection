@@ -3,3 +3,4 @@ sklearn
 torch
 opencv-python
 matplotlib
+zip
