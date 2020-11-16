@@ -107,6 +107,7 @@ class VideoLoader:
     def __from_frame_list(self, frames):
         # Verification of batch size
         if len(frames) != self.batch_size:
+            print(len(frames), self.batch_size)
             raise Error(f"The extracted batch's size is {len(frames)} but should be {self.batch_size}")
 
         if self.torch:
