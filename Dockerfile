@@ -19,7 +19,9 @@ RUN apt-get update && \
     apt-utils \
     vim \
     libgl1-mesa-glx \
-    nvidia-cuda-toolkit
+    nvidia-cuda-toolkit \
+    curl \
+    zip
 USER ${NB_USER}
 
 # install the python dependencies
@@ -27,7 +29,10 @@ COPY requirements.txt environment.yml /tmp/
 RUN conda env update -q -f /tmp/environment.yml && \
     /opt/conda/bin/pip install -r /tmp/requirements.txt && \
     conda clean -y --all && \
-    conda env export -n "root"
+    conda env export -n "root" && \
+    jupyter labextension install @ryantam626/jupyterlab_vim && \
+    jupyter labextension install @wallneradam/trailing_space_remover && \
+    echo "alias sbash='source misc/bashrc_extension'" >> $HOME/.bashrc
 
 ########################################################
 # Do not edit this section and do not add anything below
