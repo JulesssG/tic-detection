@@ -1,3 +1,5 @@
+export EDITOR='vim'
+
 alias v='vim'
 alias g='git'
 alias gs='git status -s -b'
@@ -12,5 +14,4 @@ alias gp='git push'
 alias gl='git --no-pager log -10 --oneline'
 alias gll='git log --oneline --graph'
 alias ..='cd ..'
-alias -='cd -'
 alias gaddremote='git add remote gh https://github.com/JulesssG/tourette-tic-detector.git'
