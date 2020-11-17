@@ -174,7 +174,6 @@ def subspace_angles(model1, model2, **kwargs):
     elif isinstance(C2, torch.Tensor):
         C2 = C2.detach().cpu().numpy()
     Cs = np.array([C1, C2])
-    #print(Cs[:, :5, :5])
 
     # Normalize A's
     norms = np.linalg.norm(np.stack((A1, A2)), ord=2, axis=(1,2))

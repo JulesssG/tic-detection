@@ -31,7 +31,8 @@ RUN conda env update -q -f /tmp/environment.yml && \
     conda clean -y --all && \
     conda env export -n "root" && \
     jupyter labextension install @ryantam626/jupyterlab_vim && \
-    jupyter labextension install @wallneradam/trailing_space_remover
+    jupyter labextension install @wallneradam/trailing_space_remover && \
+    echo "alias sbash='source misc/bashrc_extension'" >> $HOME/.bashrc
 
 ########################################################
 # Do not edit this section and do not add anything below
