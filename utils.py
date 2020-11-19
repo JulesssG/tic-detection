@@ -58,10 +58,10 @@ def plot(xs, ys, **kwargs):
         print('Duplicate styles')
 
     if 'fontsize' in kwargs:
-        plt.rcParams.update({'font.size': kwargs['fontsize']})
+        fontsize = kwargs['fontsize']
     else:
-        plt.rcParams.update({'font.size': 12})
-
+        fontsize = 12
+    plt.rcParams.update({'font.size': fontsize})
 
     if 'figsize' in kwargs:
         plt.figure(figsize=kwargs['figsize'])
@@ -69,9 +69,9 @@ def plot(xs, ys, **kwargs):
         plt.figure(figsize=(15,10))
 
     if 'xlabel' in kwargs:
-        plt.xlabel(kwargs['xlabel'])
+        plt.xlabel(kwargs['xlabel'], fontsize=fontsize)
     if 'ylabel' in kwargs:
-        plt.ylabel(kwargs['ylabel'])
+        plt.ylabel(kwargs['ylabel'], fontsize=fontsize)
 
     if 'yrange' in kwargs:
         low, high = kwargs['yrange']
