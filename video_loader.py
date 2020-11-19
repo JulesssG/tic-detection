@@ -3,7 +3,7 @@ import torch
 import cv2
 
 class VideoLoader:
-    def __init__(self, filename, start=0, duration=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False,
+    def __init__(self, filename, start=0, start_frame=0, duration=np.inf, duration_frames=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False,
                  torch=True, stride=None, sample_shape=None, iterator_next_frame=None):
         self.filename = filename
         self.gray = gray
@@ -13,9 +13,19 @@ class VideoLoader:
         self.fps = round(cap.get(cv2.CAP_PROP_FPS))
         self.start = start
         self.start_frame = np.ceil(start*self.fps/batch_size)*batch_size
-        self.duration_frames = int(min((self.total_frames//batch_size)*batch_size, np.ceil(duration*self.fps/batch_size)*batch_size))
+        if start_frame != 0:
+            self.start_frame = start_frame
+            self.start = start_frame/self.fps
+        self.duration_frames = min((self.total_frames//batch_size)*batch_size, np.ceil(duration*self.fps/batch_size)*batch_size)
         self.duration = self.duration_frames/self.fps
+        if duration_frames != np.inf:
+            self.duration_frames = duration_frames
+            self.duration = self.duration_frames/self.fps
+
+        # Fix as frame number may exceed the video. Example: last gesture of Suturing_B001_capture1.avi
+        self.duration_frames = int(min(self.total_frames-self.start_frame, self.duration_frames))
         self.width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+
         self.height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         if scale:
             self.scale = True
