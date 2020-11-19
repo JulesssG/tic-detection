@@ -196,12 +196,11 @@ def subspace_angles(model1, model2, **kwargs):
 
 
     eigens = np.concatenate((np.linalg.eig(Ps_[0])[0], np.linalg.eig(Ps_[1])[0]))
-    eigens = np.arccos(np.sqrt(eigens))
 
     return eigens
 
-def martin_dist(thetas):
-    return -np.log(np.prod(np.cos(thetas)**2))
+def martin_dist(eigs):
+    return -np.log(np.prod(eigs))
 
-def frob_dist(thetas):
-    return 2*(np.sum(np.sin(thetas)**2))
+def frob_dist(eigs):
+    return 2*np.sum(1-eigs)
