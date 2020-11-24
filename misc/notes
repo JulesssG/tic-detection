@@ -271,3 +271,15 @@ Week 10:
 - Take a look at UNet and add it to the models
 - Correct the dataset loading (was taking task as activities)
 - Correct the distances function -> without cos
+
+Obtained classification results for subject B with Suturing task. Depending on the k used in nearest-neighbors the classification's accuracy is 0.8-0.95 for separated learning. 
+The PCA autoencoder with proper initialization performs better than the original PCA with accuracy between 0.8-0.9 and with more stable accuracy across k's. 
+The performance of the one hidden layer autoencoder is terrible with an accuracy of random guessing pretty much.
+
+TAG week10
+
+Week 11:
+- For one gesture in a trial, compute models for each fragment of this gesture, plot the prediction error wrt the frames. We should have a lower error when the frames are in the same gesture and a even lower when the frames were used for the models.
+- Train a classifier f: R^{nf} -> {0,1} with nf the number of fragement for the given gesture. This classifier predict if the corresponding frame (a vector of nf values corresponding the prediction error for each model) is of the gesture or not.
+- Adapt the loss to minimize a loss enforcing the models of same gesture to be clustered (see math notes)
+- Use SVM (precomputed kernel in SVC) to classify to see if it improves the performance
