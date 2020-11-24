@@ -31,13 +31,15 @@ def reconstruction_error(frames1, frames2):
         frames1 = frames1.detach().cpu().numpy()
     if isinstance(frames2, torch.Tensor):
         frames2 = frames2.detach().cpu().numpy()
+    frames1, frames2 = np.clip(frames1, 0, 255).reshape(frames1.shape[0], -1), np.clip(frames2, 0, 255).reshape(frames2.shape[0], -1)
 
     return np.sqrt(np.mean((frames1 - frames2)**2))
 
 def crit(output, gt):
     output = output.view(output.shape[0], -1)
     gt = gt.view(gt.shape[0], -1)
-    return torch.clip(torch.sqrt(torch.mean((output - gt)**2)), 0, 255)
+    output, gt = torch.clip(output, 0, 255), torch.clip(gt, 0, 255)
+    return torch.sqrt(torch.mean((output - gt)**2))
 
 def standardize_frames(frames, **kwargs):
     mean = kwargs['mean'] if 'mean' in kwargs else torch.mean(frames)
@@ -123,15 +125,22 @@ def subspace_angles(model1, model2, **kwargs):
     A must be provided.
     """
     # Extract A's
+    A_default_key = 'predictor.weight'
     A1, A2 = model1[1], model2[1]
     try:
         if isinstance(A1, nn.Module):
-            A1 = A1.state_dict()[kwargs['A1_key']].T
+            if 'A1_key' in kwargs:
+                A1 = A1.state_dict()[kwargs['A1_key']].T
+            else:
+                A1 = A1.state_dict()[A_default_key]
             A1 = A1.detach().cpu().numpy()
         elif isinstance(A1, torch.Tensor):
             A1 = A1.detach().cpu().numpy()
         if isinstance(A2, nn.Module):
-            A2 = A2.state_dict()[kwargs['A2_key']].T
+            if 'A2_key' in kwargs:
+                A2 = A2.state_dict()[kwargs['A2_key']].T
+            else:
+                A2 = A2.state_dict()[A_default_key]
             A2 = A2.detach().cpu().numpy()
         elif isinstance(A2, torch.Tensor):
             A2 = A2.detach().cpu().numpy()
@@ -139,10 +148,13 @@ def subspace_angles(model1, model2, **kwargs):
         raise KeyError('You must provide the associated key for the dynamical system model.')
     n1, n2 = A1.shape, A2.shape
     if n1 != n2 or n1[0] != n1[1]:
-        raise Error('Matrix A must be of same order and square.')
+        raise ValueError(f'Matrix A must be of same order and square but were {n1.shape} and n2.shape.')
     n = n1[0]
 
     # Extract C's
+    if 'C_key' in kwargs:
+        kwargs['C1_key'] = kwargs['C_key']
+        kwargs['C2_key'] = kwargs['C_key']
     C1, C2 = model1[0], model2[0]
     if isinstance(C1, (custom_pca, nn.Module)):
         if isinstance(C1, custom_pca):
@@ -164,12 +176,12 @@ def subspace_angles(model1, model2, **kwargs):
     except KeyError:
         raise KeyError('No C matrix detected, you must provide the dimension of the frames as named parameter p.')
     if C1 is None:
-        print("Using identity for model1's projection.")
+        #print("Using identity for model1's projection.")
         C1 = np.eye(p, M=n)
     elif isinstance(C1, torch.Tensor):
         C1 = C1.detach().cpu().numpy()
     if C2 is None:
-        print("Using identity for model2's projection.")
+        #print("Using identity for model2's projection.")
         C2 = np.eye(p, M=n)
     elif isinstance(C2, torch.Tensor):
         C2 = C2.detach().cpu().numpy()
