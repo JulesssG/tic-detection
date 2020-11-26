@@ -3,28 +3,30 @@ import torch
 from torch import nn
 
 class PCAAutoEncoder(nn.Module):
-    def __init__(self, shape, ncomp):
+    def __init__(self, shape, ncomp, mean, std):
         super().__init__()
         infeatures = np.prod(shape)
         self.ncomp = ncomp
         self.shape = shape
         self.to_lower_rep = nn.Linear(infeatures, ncomp)
         self.from_lower_rep = nn.Linear(ncomp, infeatures)
+        self.mean = mean
+        self.std = std
 
     def forward(self, x):
-        x = x.view(x.shape[0], -1)
-        x = self.from_lower_rep(self.to_lower_rep(x))
+        x = (x.view(x.shape[0], -1) - self.mean)/self.std
+        x = self.from_lower_rep(self.to_lower_rep(x))*self.std + self.mean
 
         return x.view(x.shape[0], *self.shape)
 
     def encode(self, x):
-        x = x.view(x.shape[0], -1)
-        
+        x = (x.view(x.shape[0], -1) - self.mean)/self.std
+
         return self.to_lower_rep(x)
-    
+
     def decode(self, x):
-        x = self.from_lower_rep(x)
-        
+        x = self.from_lower_rep(x)*self.std + self.mean
+
         return x.view(x.shape[0], *self.shape)
 
 class OneHAutoEncoder(nn.Module):
@@ -46,10 +48,10 @@ class OneHAutoEncoder(nn.Module):
         x = self.from_lower_rep(self.to_lower_rep(x))
 
         return x.view(x.shape[0], *self.shape)
-    
+
     def encode(self, x):
         x = x.view(x.shape[0], -1)
-        
+
         return  self.to_lower_rep(x)
 
     def decode(self, x):
@@ -114,34 +116,34 @@ class TemporalConvAE(nn.Module):
             decoder_modules.append(nn.ConvTranspose3d(params[1], params[0], kernel_size=params[2], stride=params[3]))
             decoder_modules.append(nn.ReLU())
         self.decoder_convs = nn.Sequential(*decoder_modules)
-        
+
     def forward(self, x):
         x = self.encoder_convs(x)
         if self.ncomp is not None:
             x = self.to_lower_rep(x.view(x.shape[0], -1))
             x = self.from_lower_rep(x).view(-1, *self.end_shape)
         x = self.decoder_convs(x)
-        
+
         return x
-    
+
     def encode(self, x):
         if self.ncomp is None:
             print('Cannot encode without knowing the latent dimension (ncomp).')
             return
-        
+
         x = self.encoder_convs(x)
         x = self.to_lower_rep(x.view(x.shape[0], -1))
-        
+
         return x
-        
+
     def decode(self, x):
         if self.ncomp is None:
             print('Cannot decode without knowing the latent dimension (ncomp).')
             return
-        
+
         x = self.from_lower_rep(x).view(-1, *self.end_shape)
         x = self.decoder_convs(x)
-        
+
         return x
 
 class TemporalConvAE2(nn.Module):
