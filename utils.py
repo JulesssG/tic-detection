@@ -110,6 +110,17 @@ def sec2string(sec):
 
     return str(datetime.timedelta(seconds=secr))
 
+def custom_sylvester(P1, P2, P3):
+    """
+        Solve a sylvester equation of the form:
+        X = P1.T @ X @ P2 + P3
+    """
+    A_sylv = np.linalg.pinv(P1).T # Inverse or pseudo-inverse?
+    B_sylv = -P2
+    C_sylv = A_sylv @ P3
+
+    return solve_sylvester(A_sylv, B_sylv, C_sylv)
+
 def subspace_angles(model1, model2, **kwargs):
     """
     Expect two models as input, each model is a tuple (m, m_ds):
@@ -198,10 +209,7 @@ def subspace_angles(model1, model2, **kwargs):
     Ps, Ps_ = np.zeros((2, 2, n, n)), np.zeros((2, n, n))
     for i in range(2):
         for j in range(2):
-            A_sylv = np.linalg.pinv(As[i]).T # Inverse or pseudo-inverse?
-            B_sylv = -As[j]
-            C_sylv = A_sylv @ Cs[i].T @ Cs[j]
-            Ps[i,j] = solve_sylvester(A_sylv, B_sylv, C_sylv)
+            Ps[i,j] = custom_sylvester(As[i], As[j], Cs[i].T@Cs[j])
     for i,j in [(0,1), (1,0)]:
         Ps_[i] = (np.linalg.pinv(Ps[i,i]) @ Ps[i,j]
                     @ np.linalg.pinv(Ps[j,j]) @ Ps[j,i])
@@ -211,8 +219,32 @@ def subspace_angles(model1, model2, **kwargs):
 
     return eigens
 
-def martin_dist(eigs):
-    return -np.log(np.prod(eigs))
+def grad_martin_dist(Ai, A):
+    # For now assume numpy
+    if Ai.shape != A.shape:
+        return None
+    n = A.shape[0]
+    X =  custom_sylvester(A, A, np.identity(n))
+    Xi = custom_sylvester(Ai, Ai, np.identity(n))
 
-def frob_dist(eigs):
-    return 2*np.sum(1-eigs)
+    dA = np.zeros(A.shape)
+    for j in range(n):
+        for k in range(n):
+            P3 = np.zeros(A.shape)
+            P3[k,:] = X[j, :] @ A
+            P3[:,k] = A.T @ X[:,j]
+            Xd = custom_sylvester(A, A, P3)
+
+            P3 = np.zeros(A.shape)
+            P3[k,:] = Xi[j, :] @ Ai
+            Xid = custom_sylvester(A, Ai, P3)
+
+            dA[j,k] = np.sum(np.linalg.inv(X)*Xd) - 2*np.sum(np.linalg.pinv(Xi)*Xid)
+
+    return dA
+
+def martin_dist(model1, model2, **kwargs):
+    return -np.log(np.prod(subspace_angles(model1, model2, **kwargs)))
+
+def frob_dist(model1, model2, **kwargs):
+    return 2*np.sum(1-subspace_angles(model1, model2, **kwargs))
