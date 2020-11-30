@@ -285,5 +285,3 @@ Switch from initial goal -> focus on linear (but joint) learning
 - Train a classifier f: R^{nf} -> {0,1} with nf the number of fragement for the given gesture. This classifier predict if the corresponding frame (a vector of nf values corresponding the prediction error for each model) is of the gesture or not.
 - Adapt the loss to minimize a loss enforcing the models of same gesture to be clustered (see math notes)
 - Use SVM (precomputed kernel in SVC) to classify to see if it improves the performance
-
-Need to have A with norm of 1 to compute gradient so either use constraints or add penalty in loss but crit_spectral does not work.
