@@ -159,7 +159,7 @@ def subspace_angles(model1, model2, **kwargs):
         raise KeyError('You must provide the associated key for the dynamical system model.')
     n1, n2 = A1.shape, A2.shape
     if n1 != n2 or n1[0] != n1[1]:
-        raise ValueError(f'Matrix A must be of same order and square but were {n1.shape} and n2.shape.')
+        raise ValueError(f'Matrix A must be of same order and square but were {n1} and {n2}.')
     n = n1[0]
 
     # Extract C's
