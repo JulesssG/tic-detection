@@ -217,6 +217,10 @@ def subspace_angles(model1, model2, **kwargs):
 
     eigens = np.concatenate((np.linalg.eig(Ps_[0])[0], np.linalg.eig(Ps_[1])[0]))
 
+    if np.any(eigens < 0):
+        raise ValueError("Negative eigen values present: "+str(eigens))
+
+
     return eigens
 
 def grad_martin_dist(Ai, A):

@@ -285,3 +285,15 @@ Switch from initial goal -> focus on linear (but joint) learning
 - Train a classifier f: R^{nf} -> {0,1} with nf the number of fragement for the given gesture. This classifier predict if the corresponding frame (a vector of nf values corresponding the prediction error for each model) is of the gesture or not.
 - Adapt the loss to minimize a loss enforcing the models of same gesture to be clustered (see math notes)
 - Use SVM (precomputed kernel in SVC) to classify to see if it improves the performance
+
+TAG: week11
+
+Week 12:
+Some comments about last week's results presentation:
+- I should use cross-validation (5-fold) for the splitting (can use sklearn's internal functions for it)
+- I should keep in mind that the class may be unbalanced, the plot with the accuracies is misleading. Two classes are much more represented than the others (there is even one class that is not present in the train set) so the average accuracy over the points will be good even if we do good in the well representeted classes. To have a fair average accuracy I should compute the average over class: 1/K sum(i 1 to K) of accuracy_of_class_k.
+- Optimize gamm for the kernel using log scale from -5 to 5)
+- Try svm with unbalanced class (class_weight argument)
+- Double check Martin distance calculation, if it's correct just optimize learning rate and stop the optimization when the loss goes up.
+- Try another gesture (insert needle) as gesture 2 (positioning needle) may be a hard one.
+- Plot the martin distance when plotting the reconstruction error when optimizing the martin distance. Because if the distance no longer improves than the reconstruction error plot is misleading.
