@@ -297,3 +297,16 @@ Some comments about last week's results presentation:
 - Double check Martin distance calculation, if it's correct just optimize learning rate and stop the optimization when the loss goes up.
 - Try another gesture (insert needle) as gesture 2 (positioning needle) may be a hard one.
 - Plot the martin distance when plotting the reconstruction error when optimizing the martin distance. Because if the distance no longer improves than the reconstruction error plot is misleading.
+
+Done adapting/improving the code in testing in testing_classification and testing_clusters. Classification only done for baseline but svm works now, with the correct gamma. For the clusters, models seems to behave better (aka there reconstruction errors are more correlated with this gesture) but there is still issues concerning the minimization of the martin distance. What's left to do:
+- Make the classification for the pca autoencoder
+- Try the class_weights for SVM
+- Debug this martin distance minimization (double check the calculation, ...)
+- Apply the procedure Benjamin told me in mail:
+	Using the same setup of two gestures of the same class (pick one that well represented and easy to classify) optimise one to align to the other in terms of the Martin distance. Then:
+
+
+	i) Look at the reconstruction error you get using the transition matrices of both models but not the appearance. Instead, estimate the C matrix from the video you are analysing in a moving window fashion (pick some typical length of the duration of the gesture). Do this before and after optimising.
+
+
+	ii) Do the same but instead of the prediction error display the Martin distance between the model fitted at frame t and the two target models. Again, do this before and after optimising.

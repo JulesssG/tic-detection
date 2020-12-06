@@ -28,13 +28,13 @@ gi2descr = {
     15: 'Pulling suture with both hands'
 }
 
+root_path = 'data/JIGSAWS_converted'
 def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestures=None):
     if tasks is None:
         tasks = np.array(list(task2i.values()))
     else:
         tasks = np.array(tasks).ravel()
 
-    root_path = 'data/JIGSAWS_converted'
     #or_tasks = '\|'.join([i2task[task] for task in tasks])
     stream = os.popen("find %s -name '*.avi' | sed 's:^.*/\([^/]\+_[A-Z][0-9]\{3\}\)_.*$:\\1:'" %'data/JIGSAWS_converted')
     video_meta = stream.read()
