@@ -297,3 +297,9 @@ Some comments about last week's results presentation:
 - Double check Martin distance calculation, if it's correct just optimize learning rate and stop the optimization when the loss goes up.
 - Try another gesture (insert needle) as gesture 2 (positioning needle) may be a hard one.
 - Plot the martin distance when plotting the reconstruction error when optimizing the martin distance. Because if the distance no longer improves than the reconstruction error plot is misleading.
+
+Done adapting/improving the code in testing in testing_classification and testing_clusters. Classification only done for baseline but svm works now, with the correct gamma. For the clusters, models seems to behave better (aka there reconstruction errors are more correlated with this gesture) but there is still issues concerning the minimization of the martin distance. What's left to do:
+- Make the classification for the pca autoencoder (done, exact same result as baseline, loss gain is practically zero so it's kind of excepted)
+- Try the class_weights for SVM (done)
+- Debug this martin distance minimization (double check the calculation, ...)
+- Apply the procedure Benjamin told me in mail (common C matrix computed with sliding window)

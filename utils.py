@@ -224,6 +224,14 @@ def subspace_angles(model1, model2, **kwargs):
     return eigens
 
 def grad_martin_dist(Ai, A):
+    """
+        Compute gradient of the martin distance for two stable
+        transition matrices with respect to the second argument.
+
+        Multiplying a matrix A with J_{jk} results in:
+         - just the line a_k^t at line j if J_{jk}A
+         - just the column a_j at line k if AJ_{jk}
+    """
     # For now assume numpy
     if Ai.shape != A.shape:
         return None
