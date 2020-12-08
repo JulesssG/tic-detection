@@ -303,3 +303,8 @@ Done adapting/improving the code in testing in testing_classification and testin
 - Try the class_weights for SVM (done)
 - Debug this martin distance minimization (double check the calculation, ...)
 - Apply the procedure Benjamin told me in mail (common C matrix computed with sliding window)
+
+TAG: week12
+- Can try to optimize C in SVM also (there may be an automatic optimization in sklearn)
+- Make a classfifier using the reconstruction errors of models of one video to predict another
+- Can try to apply the methods developped for another dataset using EEG (https://en.wikipedia.org/wiki/Electroencephalography) to predict the gesture people are doing (moving arms etc.)
