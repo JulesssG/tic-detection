@@ -7,7 +7,7 @@ FROM ${RENKU_BASE_IMAGE}
 # that will be used in this image. To find the latest version,
 # visit https://pypi.org/project/renku/#history.
 
-ARG RENKU_VERSION=0.11.6
+ARG RENKU_VERSION=0.12.2
 
 # Uncomment and adapt if your R or python packages require extra linux (ubuntu) software
 # e.g. the following installs apt-utils and vim; each pkg on its own line, all lines

@@ -1,8 +1,8 @@
-'@id': https://localhost/projects/jules.gottraux/test
+'@id': https://limited.renku.ch/projects/jules/test
 '@type':
 - http://schema.org/Project
 - http://www.w3.org/ns/prov#Location
-http://schema.org/agent: 0.11.7.dev0+dirty
+http://schema.org/agent: 0.12.2
 http://schema.org/creator:
   '@id': mailto:jules.gottraux@epfl.ch
   '@type':
@@ -16,3 +16,10 @@ http://schema.org/creator:
 http://schema.org/dateCreated: '2020-11-03T12:10:07.130350+00:00'
 http://schema.org/name: test
 http://schema.org/schemaVersion: '8'
+https://swissdatasciencecenter.github.io/renku-ontology#automatedTemplateUpdate: false
+https://swissdatasciencecenter.github.io/renku-ontology#immutableTemplateFiles: []
+https://swissdatasciencecenter.github.io/renku-ontology#templateId: null
+https://swissdatasciencecenter.github.io/renku-ontology#templateMetadata: null
+https://swissdatasciencecenter.github.io/renku-ontology#templateReference: null
+https://swissdatasciencecenter.github.io/renku-ontology#templateSource: null
+https://swissdatasciencecenter.github.io/renku-ontology#templateVersion: null
