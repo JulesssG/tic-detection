@@ -310,3 +310,30 @@ Week 13:
 - Can try to optimize C in SVM also (there may be an automatic optimization in sklearn)
 - Make a classfifier using the reconstruction errors of models of one video to predict another
 - Can try to apply the methods developped for another dataset using EEG (https://en.wikipedia.org/wiki/Electroencephalography) to predict the gesture people are doing (moving arms etc.)
+
+Classifier gives poor results due to lack of generalization of the models. Still the minimization of the martin distance in order to create clusters seems like a good idea. But hard to get it working, Benjamin has written a script for it (syntetic_avglds.py), I tried integrating it to a function in utils (grad_martin_dist_benj) but as we can see in testing_clusters it's not very good yet. Joey has uploaded the first video of the dataset they are creating, with a beginning of annotations. 
+
+Week 14:
+Now that the end of the semester is near, we have to conclude:
+- Debug the minimization of the Martin distance in order to cluster to improve the generalization
+- Code an anomaly detection or tic detection for the new videos from Hopkins
+- Make a proper evaluation on the JIGSAW dataset
+- Begin the report, a possible outline Benjamin proposed:
+	- Intorduction and motivation
+
+	- Linear dynamical systems for time-series modelling
+
+	   + Subspace angles and distances
+
+	   + Classification using metrics in the space of LDSs: k-NN and SVM
+
+	   + Minimization w.r.t. Martin distance
+
+	   + Online action detection (possible strategies)
+	- Experiments
+
+	   + JIGSAWS dataset with and without clustering cost (i.e., bringing the models closer by means of minimzing the Martin distance)
+
+	   + Experiment on the trial that Joey uploaded -- see whether it is possible to flag regions of tic activity.
+
+	- Conclusions and future directions
