@@ -5,6 +5,7 @@ from torch import nn
 import datetime
 from matplotlib import pyplot as plt
 from scipy.linalg import solve_sylvester
+from scipy.linalg import solve_discrete_lyapunov as dlyap
 
 from custom_pca import *
 
@@ -223,6 +224,60 @@ def subspace_angles(model1, model2, **kwargs):
 
     return eigens
 
+from numpy.linalg import svd, det
+from numpy import log
+from scipy.linalg import solve_sylvester as sylv
+def grad_martin_dist_benj(Ca, Aa, Chat, Ahat):
+    n = Ahat.shape[0]
+    m = Aa.shape[-1]
+
+    # average w.r.t. Martin distance
+    # ========================================================================
+    # initial S and offset
+    S = dlyap(Ahat.T,np.eye(n));
+    logdetS = log(det(S));
+    logdetQ = 0;
+    for mm in range(m):
+        logdetQ = logdetQ + log(det(dlyap(Aa[:,:,mm].T,np.eye(n))));
+
+    # inverse of As (this requires the transition matrices to be non-singular!)
+    iA = np.zeros_like(Aa)
+    # precompute P = Chat'*C*A_inv
+    P = np.zeros((n,n,m))
+    for mm in range(m):
+        iA[:,:,mm] = np.linalg.pinv(Aa[:,:,mm])
+        P[:,:,mm]  = np.dot(np.dot(Chat.T,Ca[:,:,mm]),iA[:,:,mm])
+
+    # aux variable
+    Q = np.zeros((n,n))
+
+    # compute S and its inverse
+    S  = dlyap(Ahat.T,np.eye(n))
+    iS = np.linalg.pinv(S)
+
+    # compute derivative
+    dA = np.zeros((n,n))
+    for mm in range(m):
+        Xn = sylv(Ahat.T,-iA[:,:,mm],P[:,:,mm])
+        iX = np.linalg.pinv(Xn)
+        # derivative w.r.t. A of -2*sum(logdet( Xn ))
+        for ii in range(n):
+            for jj in range(n):
+                Q[:] = 0; Q[jj,:] = np.dot(Xn[ii,:].T,Aa[:,:,mm])
+                dXn = sylv(Ahat.T,-iA[:,:,mm],np.dot(Q,iA[:,:,mm]))
+                dA[ii,jj] = dA[ii,jj]-2*np.sum(iX.T*dXn)
+
+    # derivative w.r.t. A of logdet( S )
+    for ii in range(n):
+        for jj in range(n):
+            # logdet S
+            Q[:] = 0; Q[:,jj] = np.dot(Ahat.T,S[:,ii]); Q = Q + Q.T;
+            dS = dlyap(Ahat.T,Q)
+            # update derivative
+            dA[ii,jj] = dA[ii,jj] + m*np.sum(iS.T*dS)
+
+    return dA
+
 def grad_martin_dist(Ai, A):
     """
         Compute gradient of the martin distance for two stable
@@ -236,8 +291,8 @@ def grad_martin_dist(Ai, A):
     if Ai.shape != A.shape:
         return None
     n = A.shape[0]
-    X =  custom_sylvester(A, A, np.identity(n))
-    Xi = custom_sylvester(Ai, Ai, np.identity(n))
+    X =  dlyap(A.T, np.eye(n))
+    Xi = dlyap(Ai.T, np.eye(n))
 
     dA = np.zeros(A.shape)
     for j in range(n):
