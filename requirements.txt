@@ -3,3 +3,5 @@ sklearn
 torch
 opencv-python
 matplotlib
+pandas
+
