@@ -291,8 +291,8 @@ def grad_martin_dist(Ai, A):
     if Ai.shape != A.shape:
         return None
     n = A.shape[0]
-    X =  dlyap(A.T, np.eye(n))
-    Xi = dlyap(Ai.T, np.eye(n))
+    X =  custom_sylvester(A, A, np.identity(n))
+    Xi = custom_sylvester(Ai, Ai, np.identity(n))
 
     dA = np.zeros(A.shape)
     for j in range(n):
