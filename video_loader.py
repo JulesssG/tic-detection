@@ -66,13 +66,25 @@ class VideoLoader:
             reconstructed_frames = np.vstack(reconstructed_frames)
         return reconstructed_frames
 
-    def get_all_frames(self):
+    def get_all_frames(self, allow_skip=False):
         frames = []
         cap = cv2.VideoCapture(self.filename)
         cap.set(cv2.CAP_PROP_POS_FRAMES, self.start_frame)
         current_frame = 0
         while cap.isOpened():
             ret, frame = cap.read()
+            print(cap.get(cv2.CAP_PROP_POS_FRAMES))
+            try:
+                if allow_skip == True:
+                    for _ in range(self.skip_frame):
+                            ret, _ = cap.read()
+                            current_frame += 1
+                            print('\t', cap.get(cv2.CAP_PROP_POS_FRAMES))
+                            if not ret:
+                                raise StopIteration
+            except StopIteration:
+                self.__stop = True
+                break
             if current_frame >= self.duration_frames:
                 cap.release()
                 break
