@@ -74,10 +74,12 @@ def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestu
                             start_frame = int(start_frame)
                             end_frame = int(end_frame)
                             gesture = int(gesture[1:])
-                            if not gesture in gestures:
+                            if gesture not in gestures:
                                 continue
                             for capt in captures:
                                 video_filename = f'{root_path}/{task_name}/video/{task_name}_{subject}00{trial}_capture{capt}.avi'
+                                if end_frame - start_frame < 10:
+                                    print(l)
                                 fragment = VideoLoader(video_filename, gray=True, start_frame=start_frame,
                                                        duration_frames=end_frame-start_frame+1)
                                 fragment.trial = trial
@@ -89,7 +91,7 @@ def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestu
                                 X.append(fragment)
                                 y.append(gesture)
                 except FileNotFoundError:
-                    print(f'Video not present: task {task_name}, subject {subject}, trial {trial}, capture {capt}')
+                    print(f"Video not present: task '{task_name}', subject '{subject}', trial {trial}, capture {capt}")
                     break
     y = np.array(y)
     return X, y
