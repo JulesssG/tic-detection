@@ -73,13 +73,11 @@ class VideoLoader:
         current_frame = 0
         while cap.isOpened():
             ret, frame = cap.read()
-            print(cap.get(cv2.CAP_PROP_POS_FRAMES))
             try:
                 if allow_skip == True:
                     for _ in range(self.skip_frame):
                             ret, _ = cap.read()
                             current_frame += 1
-                            print('\t', cap.get(cv2.CAP_PROP_POS_FRAMES))
                             if not ret:
                                 raise StopIteration
             except StopIteration:
