@@ -90,6 +90,6 @@ def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestu
                                 y.append(gesture)
                 except FileNotFoundError:
                     print(f"Missing file for: task '{task_name}', subject '{subject}', trial {trial}")
-                    break
+                    continue
     y = np.array(y)
     return X, y
