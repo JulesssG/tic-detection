@@ -66,7 +66,7 @@ class VideoLoader:
             reconstructed_frames = np.vstack(reconstructed_frames)
         return reconstructed_frames
 
-    def get_all_frames(self, allow_skip=False):
+    def get_all_frames(self, allow_skip=False, batch_multiple=False):
         frames = []
         cap = cv2.VideoCapture(self.filename)
         cap.set(cv2.CAP_PROP_POS_FRAMES, self.start_frame)
@@ -144,7 +144,7 @@ class VideoLoader:
         return self
 
     def __next__(self):
-        TEMP=[]
+        frames_position = []
         if self.__stop:
             raise StopIteration()
 
@@ -152,7 +152,7 @@ class VideoLoader:
         while self.__cap.isOpened():
             try:
                 next_frame = next(self.__frame_order)
-                TEMP.append(next_frame)
+                frames_position.append(next_frame)
                 self.__cap.set(cv2.CAP_PROP_POS_FRAMES, next_frame)
                 for _ in range(self.skip_frame):
                     next(self.__frame_order)
