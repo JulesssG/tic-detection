@@ -218,7 +218,7 @@ def subspace_angles(model1, model2, tol_eigens=-1e-13, **kwargs):
 
     eigens = np.concatenate((np.linalg.eig(Ps_[0])[0], np.linalg.eig(Ps_[1])[0]))
 
-    if np.any(eigens < 0):
+    if np.any(eigens < tol_eigens):
         raise ValueError("Negative eigen values present: "+str(eigens))
 
 
