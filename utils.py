@@ -122,7 +122,7 @@ def custom_sylvester(P1, P2, P3):
 
     return solve_sylvester(A_sylv, B_sylv, C_sylv)
 
-def subspace_angles(model1, model2, **kwargs):
+def subspace_angles(model1, model2, tol_eigens=-1e-13, **kwargs):
     """
     Expect two models as input, each model is a tuple (m, m_ds):
         - m is the compression model, or the projection matrix C
@@ -310,8 +310,8 @@ def grad_martin_dist(Ai, A):
 
     return dA
 
-def martin_dist(model1, model2, **kwargs):
-    return -np.log(np.prod(subspace_angles(model1, model2, **kwargs)))
+def martin_dist(model1, model2, tol_eigens=-1e-13, **kwargs):
+    return -np.log(np.prod(subspace_angles(model1, model2, tol_eigens=tol_eigens, **kwargs)))
 
-def frob_dist(model1, model2, **kwargs):
-    return 2*np.sum(1-subspace_angles(model1, model2, **kwargs))
+def frob_dist(model1, model2, tol_eigens=-1e-13, **kwargs):
+    return 2*np.sum(1-subspace_angles(model1, model2, tol_eigens=tol_eigens, **kwargs))
