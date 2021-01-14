@@ -100,6 +100,9 @@ def plot(xs, ys, **kwargs):
             for y in ys:
                 plt.plot(xs, y)
 
+    if 'filename' in kwargs:
+        plt.savefig(kwargs['filename'])
+
     if 'title' in kwargs:
         plt.title(kwargs['title'])
 
