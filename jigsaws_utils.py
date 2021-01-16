@@ -29,7 +29,7 @@ gi2descr = {
 }
 
 root_path = 'data/JIGSAWS_converted'
-def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestures=None):
+def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestures=None, verbose=True):
     if tasks is None:
         tasks = np.array(list(task2i.values()))
     else:
@@ -89,7 +89,8 @@ def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestu
                                 X.append(fragment)
                                 y.append(gesture)
                 except FileNotFoundError:
-                    print(f"Missing file for: task '{task_name}', subject '{subject}', trial {trial}")
+                    if verbose:
+                        print(f"Missing file for: task '{task_name}', subject '{subject}', trial {trial}")
                     continue
     y = np.array(y)
     return X, y
