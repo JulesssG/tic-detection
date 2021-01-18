@@ -9,9 +9,9 @@ This repository serves also as a ![renku](https://datascience.ch/renku/) templat
 - ![misc](./misc): Miscellaneous files, including the program used to transfer large files to renku (![0x0](./misc/0x0))
 
 - ![autoencoders.py](./autoencoders.py): The different autoencoders used for dimensionality reduction of the signal
-- ![custom_pca](./custom_pca.py): A utility class for a PCA model based on sklearn's randomized_svd class
+- ![custom_pca.py](./custom_pca.py): A utility class for a PCA model based on sklearn's randomized_svd class
 - ![evaluation_classification_JIGSAWS.ipynb](./evaluation_classification_JIGSAWS.ipynb): Evaluation of the method for classification of videos' fragments activity using the ![JIGSAWS dataset](https://cirl.lcsr.jhu.edu/research/hmm/datasets/jigsaws_release/)
-- ![jigsaws_utils,py](./jigsaws_utils,py): Utility functions for JIGSAWS dataset
+- ![jigsaws_utils.py](./jigsaws_utils.py): Utility functions for JIGSAWS dataset
 - ![testing_clusters.ipynb](./testing_clusters.ipynb): Analysis of the reconstruction errors between models on the JIGSAWS dataset
 - ![tic-detection.ipynb](tic-detection.ipynb): Analyses on the dataset from the team at Hopkins university
 - ![utils.py](./utils.py): Utility functions
@@ -19,7 +19,7 @@ This repository serves also as a ![renku](https://datascience.ch/renku/) templat
 
 - ![synthetic_avglds.py](./synthetic_avglds.py): Script that minimize the Martin distance between multiple synthetic linear dynamical systems
 
-Renku related files:\\
+Renku related files:\
 - ![Dockerfile](./Dockerfile)
 - ![requirements.txt](./requirements)
 - ![environment.yml](./environment)
