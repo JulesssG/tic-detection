@@ -16,23 +16,21 @@ from numpy.linalg import svd, det
 from numpy import log
 from numpy.random import randn, rand
 
-from utils import martin_dist
-
 # ============================================================================
 # MAIN - module executed as a script
 # ============================================================================
 if __name__ == "__main__":
-
+    
     # ========================================================================
     # parameters
     # ========================================================================
 
     # fix seed of random number generator
     np.random.seed(10)
-
+    
     # maximum number of iterations
     maxiter = 1000;
-
+    
     # data dimensions
     n = 3; p = 5
 
@@ -44,11 +42,11 @@ if __name__ == "__main__":
 
     # step size
     h = 1e-4
-
+    
     # ========================================================================
     # generation of data points (LDSs)
     # ========================================================================
-
+    
     # random system generation
     Z = np.random.randn(p,n)
 
@@ -79,15 +77,15 @@ if __name__ == "__main__":
     # ========================================================================
     # LDS averaging
     # ========================================================================
-
+    
     # Euclidean average
     (U,S,Vh) = svd(np.mean(Ca[:,:,:m],axis=2))
     Ce = np.dot(U[:,:n],Vh)
     Ae = np.mean(Aa[:,:,:m],axis=2)
-
+    
     # average w.r.t. Martin distance
     # ========================================================================
-
+    
     # random initialization
     (U,S,Vh) = svd(randn(p,n),full_matrices=False)
     Chat = np.dot(U,Vh)
@@ -114,18 +112,18 @@ if __name__ == "__main__":
 
     # initial objective function
     fobj = np.zeros(maxiter)
-
+    
     # optimize over A
     # ========================================================================
     for kk in range(maxiter):
-
+        
         # compute S and its inverse
         S  = dlyap(Ahat.T,np.eye(n))
         iS = np.linalg.pinv(S)
-
+      
         # evaluate objective function
         fobj[kk] = m*log(det(S)) + logdetQ
-
+      
         # compute derivative
         dA = np.zeros((n,n))
         for mm in range(m):
@@ -139,7 +137,7 @@ if __name__ == "__main__":
                     dA[ii,jj] = dA[ii,jj]-2*np.sum(iX.T*dXn)
             # update objective function
             fobj[kk] = fobj[kk] - log(det(np.dot(Xn.T,Xn)))
-
+    
         # derivative w.r.t. A of logdet( S )
         for ii in range(n):
             for jj in range(n):
@@ -148,20 +146,19 @@ if __name__ == "__main__":
                 dS = dlyap(Ahat.T,Q)
                 # update derivative
                 dA[ii,jj] = dA[ii,jj] + m*np.sum(iS.T*dS)
-
+          
         # scale objective function
         fobj[kk] = fobj[kk]/m
-
+          
         # update of A
         Ahat = Ahat - h*dA;
-
+          
         # exit condition
         if kk>=1:
-            dists = [martin_dist((Ca[:,:,mm], Aa[:,:,mm]), (Chat, Ahat)) for mm in range(m)]
-            print(fobj[kk], np.mean(dists), dists)
             if (fobj[kk-1]-fobj[kk])/fobj[kk-1] < 1e-5:
                 fobj = fobj[:kk]
                 break
 
-
-
+    
+    
+    
