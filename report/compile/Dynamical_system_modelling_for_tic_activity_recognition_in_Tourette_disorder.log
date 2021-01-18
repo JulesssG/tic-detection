@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.1.7)  18 JAN 2021 17:23
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Arch Linux) (preloaded format=pdflatex 2021.1.7)  18 JAN 2021 17:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -383,7 +383,9 @@ File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 File: l3backend-pdftex.def 2020-09-24 L3 backend support: PDF output (pdfTeX)
 \l__kernel_color_stack_int=\count281
 \l__pdf_internal_box=\box51
-) (./main.aux)
+)
+(./compile/Dynamical_system_modelling_for_tic_activity_recognition_in_Tourette_
+disorder.aux)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 63.
 LaTeX Font Info:    ... okay on input line 63.
 LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 63.
@@ -400,8 +402,7 @@ LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 63.
 LaTeX Font Info:    ... okay on input line 63.
 LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 63.
 LaTeX Font Info:    ... okay on input line 63.
-
-(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count282
 \scratchdimen=\dimen161
@@ -452,7 +453,10 @@ LaTeX Info: Redefining \ref on input line 63.
 LaTeX Info: Redefining \pageref on input line 63.
 LaTeX Info: Redefining \nameref on input line 63.
 
-(./main.out) (./main.out)
+(./compile/Dynamical_system_modelling_for_tic_activity_recognition_in_Tourette_
+disorder.out)
+(./compile/Dynamical_system_modelling_for_tic_activity_recognition_in_Tourette_
+disorder.out)
 \@outlinefile=\write3
 LaTeX Font Info:    Trying to load font information for OT1+ptmcm on input line
  65.
@@ -674,7 +678,8 @@ Package pdftex.def Info: ./figures//tic_detection_pred_error_V12.png  used on i
 nput line 326.
 (pdftex.def)             Requested size: 491.43787pt x 122.85957pt.
  [7 <./figures//martin_distance_jigsaws_Suturing_B_trial1.png>]
-(./main.bbl
+(./compile/Dynamical_system_modelling_for_tic_activity_recognition_in_Tourette_
+disorder.bbl
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -682,14 +687,17 @@ Underfull \hbox (badness 2894) in paragraph at lines 35--38
 []\OT1/ptm/m/n/10 Mahmudul Hasan, Jonghyun Choi, Jan Neu-mann,
  []
 
-) [8 <./figures//tic_detection_pred_error_V12.png>] (./main.aux)
-Package rerunfilecheck Info: File `main.out' has not changed.
+) [8 <./figures//tic_detection_pred_error_V12.png>]
+(./compile/Dynamical_system_modelling_for_tic_activity_recognition_in_Tourette_
+disorder.aux)
+Package rerunfilecheck Info: File `Dynamical_system_modelling_for_tic_activity_
+recognition_in_Tourette_disorder.out' has not changed.
 (rerunfilecheck)             Checksum: B6952A700ACE9CCF1F3EC218DDB60934;1141.
  ) 
 Here is how much of TeX's memory you used:
- 8214 strings out of 479383
- 129742 string characters out of 5875831
- 451068 words of memory out of 5000000
+ 8216 strings out of 479383
+ 131018 string characters out of 5875831
+ 451212 words of memory out of 5000000
  25067 multiletter control sequences out of 15000+600000
  445374 words of font info for 113 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -706,7 +714,8 @@ dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf-dist/fonts/type1/urw
 /symbol/usyr.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/
 share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-dist/fonts/
 type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (8 pages, 1224094 bytes).
+Output written on ./compile/Dynamical_system_modelling_for_tic_activity_recogni
+tion_in_Tourette_disorder.pdf (8 pages, 1224094 bytes).
 PDF statistics:
  268 PDF objects out of 1000 (max. 8388607)
  214 compressed objects within 3 object streams
