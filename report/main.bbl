@@ -1,0 +1,49 @@
+\begin{thebibliography}{1}
+
+\bibitem{tic_meta_behavior}
+McGuire Joseph~F., Piacentini John, Brennan Erin~A., Lewin Adam~B., Murphy
+  Tanya~K., Small Brent~J., and Storch Eric~A.
+\newblock A meta-analysis of behavior therapy for tourette syndrome.
+\newblock {\em Journal of psychiatric research}, 2014.
+
+\bibitem{tic_randomized_behavior}
+Wilhelm Sabine, Peterson Alan~L., Piacentini John, Woods Douglas~W.,
+  Deckersbach Thilo, Sukhodolsky Denis~G., Chang Susanna, Liu Haibei, Dziura
+  James, Walkup John~T., and Scahill Lawrence.
+\newblock Randomized trial of behavior therapy for adults with tourette
+  syndrome.
+\newblock {\em Archives of general psychiatry}, 2012.
+
+\bibitem{zappella}
+Zappella Luca, Béjar Benjamin, Hager Gregory, and Vidal René.
+\newblock Surgical gesture classification from video and kinematic data.
+\newblock {\em Medical Image Analysis}, 2013.
+
+\bibitem{doretto}
+Doretto Gianfranco, Chiuso Alessandro, Wu~Ying~Nian, and Soatto Stefano.
+\newblock Dynamic textures.
+\newblock {\em International Journal of Computer Vision}, 2003.
+
+\bibitem{smoke-detection-LDS}
+K.~{Dimitropoulos}, P.~{Barmpoutis}, and N.~{Grammalidis}.
+\newblock Higher order linear dynamical systems for smoke detection in video
+  surveillance applications.
+\newblock {\em IEEE Transactions on Circuits and Systems for Video Technology},
+  27(5):1143--1154, 2017.
+
+\bibitem{temp-regularity-AE}
+Mahmudul Hasan, Jonghyun Choi, Jan Neumann, Amit~K. Roy-Chowdhury, and Larry~S.
+  Davis.
+\newblock Learning temporal regularity in video sequences, 2016.
+
+\bibitem{endtoend-AE}
+Jorge Pessoa, Helena Aidos, Pedro Tomás, and Mário A.~T. Figueiredo.
+\newblock End-to-end learning of video compression using spatio-temporal
+  autoencoders, 2019.
+
+\bibitem{ronneberger2015unet}
+Ronneberger Olaf, Fischer Philipp, and Brox Thomas.
+\newblock U-net: Convolutional networks for biomedical image segmentation,
+  2015.
+
+\end{thebibliography}
