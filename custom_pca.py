@@ -2,6 +2,9 @@ import numpy as np
 from sklearn.utils.extmath import randomized_svd
 
 class custom_pca():
+    """
+    Class modelling a PCA model on videos based on sklearn's randomized_svd.
+    """
     def __init__(self, ncomp=10):
         self.ncomp = ncomp
         

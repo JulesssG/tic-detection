@@ -3,6 +3,42 @@ import torch
 import cv2
 
 class VideoLoader:
+    """
+    A class used to easily manipulate and iterate over videos
+    
+    
+    Args:
+        filename (str):
+            the filename of the video
+        start (str):
+            when to start reading the video file in seconds (default: 0)
+        start_frame (int):
+            the frame where to start reading the video file (default: 0)
+        duration (float):
+            the duration of the video in seconds (default: np.inf (i.e. entire video file))
+        duration_frames (int):
+            the number of frames in the video (default: np.inf (i.e. all frames in video file))
+        gray (bool):
+            if true map the frames to gray scale (default: False)
+        scale (int, int):
+            if not None, specify the resolution of each frame returned (default: None)
+        torch (bool):
+            if true return a torch.Tensor, otherwise a numpy.ndarray (default: True)
+        sample_shape (list of ints):
+            the shape of each frame in the object returned by the iterator (default: None)
+        batch_size (int):
+            the number of frames per batch in the iterator (default: 64)
+        skip_frame (int):
+            how many frames to skip when iterating over batches (default: 0)
+        randit (int):
+            if true sample the frames in the video in a random order (default: False)
+        stride (int):
+            the stride of the iterator (default: batch_size (non-overlapping))
+        iterator_next_frame (bool):
+            if true, return the batch as (batch[:-1], batch[-1]) (useful when having to 
+            predict the next frame using all the batch) (default: False)
+    
+    """
     def __init__(self, filename, start=0, start_frame=0, duration=np.inf, duration_frames=np.inf, batch_size=64, gray=False, scale=None, skip_frame=0, randit=False,
                  torch=True, stride=None, sample_shape=None, iterator_next_frame=None):
         self.filename = filename

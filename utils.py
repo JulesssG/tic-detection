@@ -51,6 +51,10 @@ def standardize_frames(frames, **kwargs):
     return frames
 
 def plot(xs, ys, **kwargs):
+    """
+    Easily plot multiple curves from an array. If only one array in 
+    xs the same x axis is used for all ys.
+    """
     if 'styles' in kwargs:
         styles = kwargs['styles']
     else:

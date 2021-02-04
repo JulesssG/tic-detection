@@ -30,6 +30,11 @@ gi2descr = {
 
 root_path = 'data/JIGSAWS_converted'
 def load_video_data(tasks=None, subjects=None, trials=None, captures=None, gestures=None, verbose=True):
+    """
+    Utility function to easily load parts of the JIGSAWS dataset, located in $root_path defined 
+    above. All fragments of videos satisfying the arguments given to the function will be 
+    returned (X), along with there gesture (y).
+    """
     if tasks is None:
         tasks = np.array(list(task2i.values()))
     else:
